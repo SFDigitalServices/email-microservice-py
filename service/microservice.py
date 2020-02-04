@@ -4,7 +4,7 @@ import json
 import jsend
 import sentry_sdk
 import falcon
-from .resources.welcome import Welcome
+from .resources.email import EmailService
 
 def start_service():
     """Start this service
@@ -14,7 +14,7 @@ def start_service():
     sentry_sdk.init(os.environ.get('SENTRY_DSN'))
     # Initialize Falcon
     api = falcon.API()
-    api.add_route('/welcome', Welcome())
+    api.add_route('/email', EmailService())
     api.add_sink(default_error, '')
     return api
 
