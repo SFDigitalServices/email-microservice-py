@@ -26,7 +26,7 @@ class EmailService():
         }
         message.template_id = data['template_id']
 
-        if data['file'] != None:
+        if data['file'] is not None:
             message.attachment = local_helper.getAttachments(data['file'])
         try:
             sg = SendGridAPIClient(data['SENDGRID_API_KEY'])
