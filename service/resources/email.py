@@ -1,5 +1,7 @@
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+from sendgrid.helpers.mail import (
+    Mail, From, To, Cc, Bcc, Subject, Header, SendAt, Content, MimeType, ReplyTo, MailSettings, FooterSettings, FooterText,
+    FooterHtml)
 import json
 import falcon
 from .helpers import helpers
@@ -19,6 +21,10 @@ class EmailService():
             from_email=data['dynamic_template_data']['from'],
             to_emails=to_emails
             )
+
+        message.content = Content(MimeType.text, data['text'])
+        message.content = Content(MimeType.html, data['html'])
+
         message.dynamic_template_data = {
             'subject': data['dynamic_template_data']['subject'],
             'name': data['dynamic_template_data']['name'],
@@ -26,8 +32,9 @@ class EmailService():
         }
         message.template_id = data['template_id']
 
-        if data['file'] is not None:
-            message.attachment = local_helper.getAttachments(data['file'])
+        if data['files'] is not None:
+            for afile in data['files']:
+                message.add_attachment(local_helper.getAttachments(afile))
         try:
             sg = SendGridAPIClient(data['SENDGRID_API_KEY'])
             response = sg.send(message)
