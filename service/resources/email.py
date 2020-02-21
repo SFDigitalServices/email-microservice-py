@@ -75,8 +75,8 @@ class EmailService():
             message.dynamic_template_data = template_data
 
         """ Additional Sendgrid API features """
-        #if 'attachments' in data.keys() and data['attachments'] is not None:
-            #message.attachment = local_helper.getAttachments(data['attachments'])
+        if 'attachments' in data.keys() and data['attachments'] is not None:
+            message.attachment = local_helper.getAttachments(data['attachments'])
 
         if 'tracking_settings' in data.keys() and data['tracking_settings'] is not None:
             message.tracking_settings = local_helper.getEmailTrackings(data['tracking_settings'])
