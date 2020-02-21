@@ -1,0 +1,58 @@
+
+  {
+    "SENDGRID_API_KEY": "[Your sendgrid API key: https://app.sendgrid.com/settings/api_keys]",
+    "attachments": [
+        {
+          "content": "",
+          "filename": "sf_city_hall.jpg",
+          "path": "https://digitalservices.sfgov.org/assets/sf_city_hall-bg.jpg",
+          "type": "image/jpg"
+        },
+        {
+          "content": "",
+          "filename": "sample.pdf",
+          "path": "http://www.africau.edu/images/default/sample.pdf",
+          "type": "application/pdf"
+        },
+        {
+          "content": "[BASE64 encoded content block here]",
+          "filename": "sample.pdf",
+          "path": "",
+          "type": "text/plain"
+        }
+      ],
+      "content": [
+        {
+            "type": "text/html",
+            "value": "<html><p>Hello, world!</p><img src=[CID GOES HERE]></img></html>"
+        },
+        {
+          "type": "text/custom",
+          "value": "Hello world - custom type"
+        }
+      ],
+      "to": [
+        {
+          "email": "[Recipient Email Address]",
+          "name": "[Recipient Name]"
+        }
+      ],
+      "from": {
+          "email": "[Your from address]",
+          "name": "[Your from name]"
+      },
+      "reply_to": {
+          "email": "[Your reply-to address]",
+          "name": "[Your repy-to name]"
+      },
+      "subject": "Hello, World!",
+      "send_at": 1409348513,
+      "template_id": "[Leave this empty or specify your sendgrid dynamic template id: https://mc.sendgrid.com/dynamic-templates]",
+      "dynamic_template_data": {
+        "guest": "stuff",
+        "partysize": "4",
+        "english": true,
+        "subject": "test email",
+        "date": "April 1st, 2018"
+      }
+  }

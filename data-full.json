@@ -1,0 +1,191 @@
+
+  {
+    "SENDGRID_API_KEY": "[Your sendgrid API key: https://app.sendgrid.com/settings/api_keys]",
+    "asm": {
+          "group_id": "[Create unsubscribe group id: https://mc.sendgrid.com/unsubscribe-groups]",
+          "groups_to_display": [
+            "[list of group id]"
+          ]
+      },
+      "attachments": [
+        {
+          "content": "",
+          "filename": "sf_city_hall.jpg",
+          "path": "https://digitalservices.sfgov.org/assets/sf_city_hall-bg.jpg",
+          "type": "image/jpg"
+        },
+        {
+          "content": "",
+          "filename": "sample.pdf",
+          "path": "http://www.africau.edu/images/default/sample.pdf",
+          "type": "application/pdf"
+        },
+        {
+          "content": "[BASE64 encoded content block here]",
+          "filename": "sample.pdf",
+          "path": "",
+          "type": "text/plain"
+        }
+      ],
+      "batch_id": "[Create sendgrid batch id: https://sendgrid.com/docs/API_Reference/api_v3.html]",
+      "categories": [
+          "category1",
+          "category2"
+      ],
+      "content": [
+        {
+            "type": "text/html",
+            "value": "<html><p>Hello, world! Welcome to DS</p> </html>"
+        },
+        {
+          "type": "text/custom",
+          "value": "Hello world - custom type"
+        }
+      ],
+      "custom_args": {
+          "New Argument 1": "New Value 1",
+          "activationAttempt": "1",
+          "customerAccountNumber": "[CUSTOMER ACCOUNT NUMBER GOES HERE]"
+      },
+      "to": [
+        {
+          "email": "[Recipient Email Address]",
+          "name": "[Recipient Name]"
+        }
+      ],
+      "from": {
+          "email": "[Your from address]",
+          "name": "[Your from name]"
+      },
+      "reply_to": {
+          "email": "[Your reply-to address]",
+          "name": "[Your repy-to name]"
+      },
+      "subject": "Hello, World!",
+      "send_at": 1409348513,
+      "template_id": "[Leave this empty or specify your sendgrid dynamic template id: https://mc.sendgrid.com/dynamic-templates]",
+      "dynamic_template_data": {
+        "guest": "stuff",
+        "partysize": "4",
+        "english": true,
+        "subject": "test email",
+        "date": "April 1st, 2018"
+      },
+      "headers": {
+        "X-Accept-Language": "en",
+        "X-Mailer": "DS Email Service"
+      },
+      "ip_pool_name": "[YOUR POOL NAME GOES HERE]",
+      "mail_settings": {
+          "bcc": {
+              "email": "[Bcc]",
+              "enable": false
+          },
+          "bypass_list_management": {
+              "enable": false
+          },
+          "footer": {
+              "enable": true,
+              "html": "<p>Thanks</br>The SendGrid Team</p>",
+              "text": "Thanks,/n The SendGrid Team"
+          },
+          "sandbox_mode": {
+              "enable": false
+          },
+          "spam_check": {
+              "enable": false,
+              "post_to_url": "http://example.com/compliance",
+              "threshold": 3
+          }
+      },
+      "personalizations": [
+          {
+            "to": [
+                {
+                    "email": "john@doe.com",
+                    "name": "John Doe"
+                }
+            ],
+            "bcc": [
+                  {
+                      "email": "sam@doe.com",
+                      "name": "Sam Doe"
+                  }
+            ],
+            "cc": [
+                  {
+                      "email": "jane@doe.com",
+                      "name": "Jane Doe"
+                  }
+            ],
+            "custom_args": {
+                  "New Argument 1": "New Value 1",
+                  "activationAttempt": "1",
+                  "customerAccountNumber": "[CUSTOMER ACCOUNT NUMBER GOES HERE]"
+            },
+            "headers": {
+                  "X-Accept-Language": "en",
+                  "X-Mailer": "DS Email Service"
+            },
+            "subject": "Hello, World!"
+          },
+          {
+            "to": [
+                {
+                    "email": "agent1@nasa.xcom",
+                    "name": "Agent 1"
+                }
+            ],
+            "bcc": [
+                  {
+                    "email": "agent2@nasa.xcom",
+                    "name": "Agent 2"
+                  }
+            ],
+            "cc": [
+                  {
+                    "email": "agent3@nasa.xcom",
+                    "name": "Agent 3"
+                  }
+            ],
+            "custom_args": {
+                  "New Argument 2": "New Value 2",
+                  "activationAttempt": "2",
+                  "customerAccountNumber": "[CUSTOMER ACCOUNT NUMBER GOES HERE]"
+            },
+            "headers": {
+                  "X-Accept-Language": "en",
+                  "X-Mailer": "DS Email Service"
+            },
+            "subject": "Hello, World 2!"
+          }
+      ],
+      "sections": {
+          ":sectionName1": "section 1 text",
+          ":sectionName2": "section 2 text"
+      },
+      "tracking_settings": {
+          "click_tracking": {
+              "enable": false,
+              "enable_text": false
+          },
+          "ganalytics": {
+              "enable": false,
+              "utm_source": "[Name of the referrer source. (e.g. Google, SomeDomain.com, or Marketing Email)]",
+              "utm_medium": "[NAME OF YOUR MARKETING MEDIUM e.g. email]",
+              "utm_term": "[IDENTIFY PAID KEYWORDS HERE]",
+              "utm_content": "[USE THIS SPACE TO DIFFERENTIATE YOUR EMAIL FROM ADS]",
+              "utm_campaign": "[The name of the campaign]"
+          },
+          "open_tracking": {
+              "enable": false,
+              "substitution_tag": "%opentrack"
+          },
+          "subscription_tracking": {
+              "enable": false,
+              "html": "If you would like to unsubscribe and stop receiving these emails <% clickhere %>.",
+              "substitution_tag": "<%click here%>",
+              "text": "If you would like to unsubscribe and stop receiving these emails <% click here %>."
+          }
+        }
+      }
