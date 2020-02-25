@@ -2,14 +2,14 @@
 SFDS Email microservice is a service intended for developers inside the city to send emails on a standard transactional email service platform such as Sendgrid, Mailgun, Amaozon SES ... etc. Only Sendgrid is supported at this time; other email service implementation is not on the road map.
 
 ## Extension and Development
-This project is forked from [SFDS microservice boilerplate](https://github.com/SFDigitalServices/microservice-py). If you wish to extend implementation of other email service, please follow the instructions on the SFDS microservice repo. If you find this project useful, you may use the code here.
+This project is forked from [SFDS microservice boilerplate](https://github.com/SFDigitalServices/microservice-py). If you wish to extend implementation of other email service, please follow the instructions on the SFDS microservice boilerplate repo. If you find this project useful, you may use the code here.
 
 ## Get started
 *** You must have a APIGee API key to continue. To obtain a key, please contact SF Digital Services.
 
-A sample POST data is provide in ``` data-sample.json ``` and ``` data-full.json ```, you will be responsible to complete the values in brackets([]) before using the service.
+A sample POST data is provided in ``` data-sample.json ``` and ``` data-full.json ```, you will be responsible to complete the values in brackets([]) before using the service.
 
-Terminal command with Curl:
+Terminal command with curl:
 ```
 curl --location --request POST 'https://sfds-dev.apigee.net/emailservice' \
 --header 'x-apikey: [INSERT YOUR APIGEE API KEY HERE]' \
