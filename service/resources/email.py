@@ -28,7 +28,7 @@ class EmailService():
         local_helper = helpers.HelperService()
         """ Construct required outgoing email parameters """
         message = Mail()
- 
+
         """ One line settings """
         message.from_email = From(data['from']['email'], data['from']['name'])
         message.subject = Subject(data['subject'])
@@ -37,7 +37,7 @@ class EmailService():
             message.send_at = data['send_at']
         if 'asm' in data.keys() and data['asm'] is not None:
             message.asm = Asm(GroupId(data['asm']['group_id']), GroupsToDisplay(data['asm']['groups_to_display']))
-         
+
         if 'batch_id' in data.keys() and data['batch_id'] is not None:
             message.batch_id = BatchId(data['batch_id'])
 
@@ -47,7 +47,7 @@ class EmailService():
             template_data = {}
             template_data.update(data['dynamic_template_data'])
             message.dynamic_template_data = template_data
-    
+
         func_switcher = {
             "to": local_helper.getEmails,
             "cc": local_helper.getEmails,

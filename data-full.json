@@ -75,7 +75,6 @@
         "X-Accept-Language": "en",
         "X-Mailer": "DS Email Service"
       },
-      "ip_pool_name": "[YOUR POOL NAME GOES HERE]",
       "mail_settings": {
           "bcc": {
               "email": "[Bcc]",
