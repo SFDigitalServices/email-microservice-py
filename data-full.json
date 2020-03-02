@@ -2,7 +2,7 @@
   {
     "SENDGRID_API_KEY": "[Your sendgrid API key: https://app.sendgrid.com/settings/api_keys]",
     "asm": {
-          "group_id": "[Create unsubscribe group id: https://mc.sendgrid.com/unsubscribe-groups]",
+          "group_id": "[Create unsubscribe group id: https://mc.sendgrid.com/unsubscribe-groups] or leave empty",
           "groups_to_display": [
             "[list of group id]"
           ]
@@ -27,7 +27,7 @@
           "type": "text/plain"
         }
       ],
-      "batch_id": "[Create sendgrid batch id: https://sendgrid.com/docs/API_Reference/api_v3.html]",
+      "batch_id": "[Create sendgrid batch id: curl --request POST --url https://api.sendgrid.com/v3/mail/batch --header 'authorization: Bearer <<YOUR_API_KEY_HERE>>']",
       "categories": [
           "category1",
           "category2"

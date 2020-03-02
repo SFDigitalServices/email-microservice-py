@@ -30,5 +30,7 @@ The json data follows [Sendgrid's sendmail API](https://sendgrid.com/docs/api-re
     - `path` is added for files hosted externally
     - `content_id` is ommitted
     - `disposition` is ommitted
+- `personalizations`
+    -   `substitutions` is ommitted
 - `dynamic_template_data` is added to the top leve. If `template_id` is specified, the key/value pair will be mapped in the template.
     See [Dynamic Template Data](https://sendgrid.com/docs/ui/sending-email/how-to-send-an-email-with-dynamic-transactional-templates/) for more details.

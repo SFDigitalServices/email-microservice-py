@@ -28,17 +28,17 @@ class EmailService():
         local_helper = helpers.HelperService()
         """ Construct required outgoing email parameters """
         message = Mail()
-
+ 
         """ One line settings """
         message.from_email = From(data['from']['email'], data['from']['name'])
         message.subject = Subject(data['subject'])
 
-        if 'send_at' in data.keys() and data['send_at'] is not None:
+        if 'send_at' in data.keys() and data['send_at'] != '':
             message.send_at = data['send_at']
-        if 'asm' in data.keys() and data['asm'] is not None:
+        if 'asm' in data.keys() and data['asm'] is not None and data['asm']['group_id'] != '':
             message.asm = Asm(GroupId(data['asm']['group_id']), GroupsToDisplay(data['asm']['groups_to_display']))
 
-        if 'batch_id' in data.keys() and data['batch_id'] is not None:
+        if 'batch_id' in data.keys() and data['batch_id'] != '':
             message.batch_id = BatchId(data['batch_id'])
 
         """ If template id is specified, set dynamic data for the template """
