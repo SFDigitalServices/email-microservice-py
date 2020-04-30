@@ -26,6 +26,7 @@ For detail of the fields in the json data, please see below.
 |----------|---------------------------------------------------------------------------------------|-----------------------|
 | SENDGRID_API_KEY | Your Sendgrid API Key | required|
 | asm | An object allowing you to specify how to handle unsubscribes.| optional|
+| --- | --- | -- |
     |group_id | The unsubscribe group to associate with this email| required |
     |groups_to_display | An array containing the unsubscribe groups that you would like to be displayed on the unsubscribe preferences page.| optional |
 | attachments |An array of objects in which you can specify any attachments you want to include | optional |
