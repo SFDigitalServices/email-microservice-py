@@ -28,8 +28,7 @@ class HelperService():
         attachment_list = []
 
         for attachment in attachments:
-            if 'path' in attachment.keys() and attachment['path'] is not None \
-            and attachment['path'] != "":
+            if 'path' in attachment.keys() and attachment['path'] is not None and attachment['path'] != "":
                 file_path = attachment['path']
                 data = urllib.urlopen(file_path).read()
                 encoded = base64.b64encode(data).decode()
@@ -56,8 +55,7 @@ class HelperService():
                 settings['open_tracking']['enable'],
                 OpenTrackingSubstitutionTag(settings['open_tracking']['substitution_tag'])
             )
-        if 'subscription_tracking' in settings.keys() and \
-        settings['subscription_tracking'] is not None:
+        if 'subscription_tracking' in settings.keys() and settings['subscription_tracking'] is not None:
             tracking_settings.subscription_tracking = SubscriptionTracking(
                 settings['subscription_tracking']['enable'],
                 SubscriptionText(settings['subscription_tracking']['text']),
@@ -91,8 +89,7 @@ class HelperService():
                 settings['bcc']['enable'],
                 BccSettingsEmail(settings['bcc']['email'])
             )
-        if 'bypass_list_management' in settings.keys() and \
-        settings['bypass_list_management'] is not None:
+        if 'bypass_list_management' in settings.keys() and settings['bypass_list_management'] is not None:
             mail_settings.bypass_list_management = BypassListManagement(
                 settings['bypass_list_management']['enable'])
         if 'footer' in settings.keys() and settings['footer'] is not None:
