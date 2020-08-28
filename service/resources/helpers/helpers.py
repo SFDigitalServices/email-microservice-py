@@ -1,11 +1,12 @@
+"""
+Set of helper functions to handler sendgrid email api options
+"""
 import base64
-import logging
 from sendgrid.helpers.mail import (
-    To, Cc, Bcc, Substitution, Header,
-    CustomArg, Content, MimeType, Attachment, FileName,
-    FileContent, FileType, Disposition, ContentId,
-    Section, Category,
-    IpPoolName, MailSettings, BccSettings, BccSettingsEmail,
+    To, Cc, Bcc, Header,
+    CustomArg, Content, Attachment, FileName,
+    FileContent, FileType,
+    Section, Category, MailSettings, BccSettings, BccSettingsEmail,
     BypassListManagement, FooterSettings, FooterText,
     FooterHtml, SandBoxMode, SpamCheck, SpamThreshold, SpamUrl,
     TrackingSettings, ClickTracking, SubscriptionTracking,
@@ -14,18 +15,21 @@ from sendgrid.helpers.mail import (
     UtmSource, UtmMedium, UtmTerm, UtmContent, UtmCampaign)
 
 class HelperService():
-    def getAttachments(self, attachments):
+    """ Helper class for sendgrid options """
+    @staticmethod
+    def get_attachments(attachments):
         """ This function sets up email attachments """
         try:
             # Python 3
-            import urllib.request as urllib
+            import urllib.request as urllib # pylint: disable=C
         except ImportError:
             # Python 2
-            import urllib2 as urllib
+            import urllib2 as urllib # pylint: disable=C
         attachment_list = []
 
         for attachment in attachments:
-            if 'path' in attachment.keys() and attachment['path'] is not None and attachment['path'] != "":
+            if 'path' in attachment.keys() and attachment['path'] is not None \
+            and attachment['path'] != "":
                 file_path = attachment['path']
                 data = urllib.urlopen(file_path).read()
                 encoded = base64.b64encode(data).decode()
@@ -39,17 +43,21 @@ class HelperService():
             ))
 
         return attachment_list
-
-    def getEmailTrackings(self, settings):
+    @staticmethod
+    def get_email_trackings(settings):
+        """ This function sets up email trackings """
         tracking_settings = TrackingSettings()
         if 'click_tracking' in settings.keys() and settings['click_tracking'] is not None:
-            tracking_settings.click_tracking = ClickTracking(settings['click_tracking']['enable'], settings['click_tracking']['enable_text'])
+            tracking_settings.click_tracking = ClickTracking(
+                settings['click_tracking']['enable'],
+                settings['click_tracking']['enable_text'])
         if 'open_tracking' in settings.keys() and settings['open_tracking'] is not None:
             tracking_settings.open_tracking = OpenTracking(
                 settings['open_tracking']['enable'],
                 OpenTrackingSubstitutionTag(settings['open_tracking']['substitution_tag'])
             )
-        if 'subscription_tracking' in settings.keys() and settings['subscription_tracking'] is not None:
+        if 'subscription_tracking' in settings.keys() and \
+        settings['subscription_tracking'] is not None:
             tracking_settings.subscription_tracking = SubscriptionTracking(
                 settings['subscription_tracking']['enable'],
                 SubscriptionText(settings['subscription_tracking']['text']),
@@ -66,20 +74,25 @@ class HelperService():
             )
         return tracking_settings
 
-    def getCustomArgs(self, custom_args):
+    @staticmethod
+    def get_custom_args(custom_args):
+        """ This function sets up email custom args """
         custom_arg_list = []
         for custom_arg_key, custom_arg_value in custom_args.items():
             custom_arg_list.append(CustomArg(custom_arg_key, custom_arg_value))
         return custom_arg_list
 
-    def getMailSettings(self, settings):
+    @staticmethod
+    def get_mail_settings(settings):
+        """ This function sets up email settings """
         mail_settings = MailSettings()
         if 'bcc' in settings.keys() and settings['bcc'] is not None:
             mail_settings.bcc_settings = BccSettings(
                 settings['bcc']['enable'],
                 BccSettingsEmail(settings['bcc']['email'])
             )
-        if 'bypass_list_management' in settings.keys() and settings['bypass_list_management'] is not None:
+        if 'bypass_list_management' in settings.keys() and \
+        settings['bypass_list_management'] is not None:
             mail_settings.bypass_list_management = BypassListManagement(
                 settings['bypass_list_management']['enable'])
         if 'footer' in settings.keys() and settings['footer'] is not None:
@@ -98,25 +111,33 @@ class HelperService():
             )
         return mail_settings
 
-    def getSections(self, sections):
+    @staticmethod
+    def get_sections(sections):
+        """ This function sets up email Sections """
         email_sections = []
         for section_key, section_value in sections.items():
             email_sections.append(Section(section_key, section_value))
         return email_sections
 
-    def getHeaders(self, headers):
+    @staticmethod
+    def get_headers(headers):
+        """ This function sets up email headers """
         email_headers = []
         for header_key, header_value in headers.items():
             email_headers.append(Header(header_key, header_value))
         return email_headers
 
-    def getCategory(self, categories):
+    @staticmethod
+    def get_category(categories):
+        """ This function sets up email Categories """
         email_categories = []
         for category in categories:
             email_categories.append(Category(category))
         return email_categories
 
-    def getEmails(self, emails, email_type):
+    @staticmethod
+    def get_emails(emails, email_type):
+        """ This function sets up email type """
         email_list = []
         counter = 0
         for email in emails:
@@ -129,7 +150,9 @@ class HelperService():
             counter += 1
         return email_list
 
-    def getContent(self, contents):
+    @staticmethod
+    def get_content(contents):
+        """ This function sets up email content """
         content_list = []
         for content in contents:
             content_list.append(Content(content['type'], content['value']))

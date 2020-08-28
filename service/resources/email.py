@@ -1,47 +1,48 @@
-from sendgrid import SendGridAPIClient
-from python_http_client.exceptions import HTTPError
-from sendgrid.helpers.mail import (
-    Mail, From, To, Cc, Bcc, Subject, SendAt, MimeType, TemplateId,
-    Asm, GroupId, GroupsToDisplay, ReplyTo, BatchId)
+""" Email """
 import json
 import falcon
-from .helpers import helpers
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import (Mail, From, Subject, TemplateId, Asm, GroupId, GroupsToDisplay, BatchId)
+from python_http_client.exceptions import HTTPError
+from .helpers.helpers import HelperService
 from .hooks import validate_access
-import sys, traceback, logging
 
 @falcon.before(validate_access)
 class EmailService():
-
+    """ Email service """
     def on_post(self, req, resp):
+        """ Implement POST """
         data = json.loads(req.stream.read())
 
         if 'personalizations' in data.keys() and data['personalizations'] is not None:
             for personalization in data['personalizations']:
-                """ map fields from personalization to main email """
+                # map fields from personalization to main email """
                 for p_key, p_value in personalization.items():
-                     data[p_key] = p_value
-                self.sendEmail(data, resp)
+                    data[p_key] = p_value
+                self.send_email(data, resp)
         else:
-            self.sendEmail(data, resp)
+            self.send_email(data, resp)
 
-    def sendEmail(self, data, resp):
-        local_helper = helpers.HelperService()
-        """ Construct required outgoing email parameters """
+    @staticmethod
+    def send_email(data, resp):
+        """ Sends the email """
+        #Construct required outgoing email parameters """
         message = Mail()
- 
-        """ One line settings """
+
+        #One line settings """
         message.from_email = From(data['from']['email'], data['from']['name'])
         message.subject = Subject(data['subject'])
 
         if 'send_at' in data.keys() and data['send_at'] != '':
             message.send_at = data['send_at']
         if 'asm' in data.keys() and data['asm'] is not None and data['asm']['group_id'] != '':
-            message.asm = Asm(GroupId(data['asm']['group_id']), GroupsToDisplay(data['asm']['groups_to_display']))
+            message.asm = Asm(GroupId(data['asm']['group_id']),
+                              GroupsToDisplay(data['asm']['groups_to_display']))
 
         if 'batch_id' in data.keys() and data['batch_id'] != '':
             message.batch_id = BatchId(data['batch_id'])
 
-        """ If template id is specified, set dynamic data for the template """
+        #If template id is specified, set dynamic data for the template
         if 'template_id' in data.keys() and data['template_id'] != "":
             message.template_id = TemplateId(data['template_id'])
             template_data = {}
@@ -49,16 +50,16 @@ class EmailService():
             message.dynamic_template_data = template_data
 
         func_switcher = {
-            "to": local_helper.getEmails,
-            "cc": local_helper.getEmails,
-            "bcc": local_helper.getEmails,
-            "content": local_helper.getContent,
-            "attachment": local_helper.getAttachments,
-            "tracking_settings": local_helper.getEmailTrackings,
-            "custom_arg": local_helper.getCustomArgs,
-            "section": local_helper.getSections,
-            "header": local_helper.getHeaders,
-            "category": local_helper.getCategory
+            "to": HelperService.get_emails,
+            "cc": HelperService.get_emails,
+            "bcc": HelperService.get_emails,
+            "content": HelperService.get_content,
+            "attachment": HelperService.get_attachments,
+            "tracking_settings": HelperService.get_email_trackings,
+            "custom_arg": HelperService.get_custom_args,
+            "section": HelperService.get_sections,
+            "header": HelperService.get_headers,
+            "category": HelperService.get_category
         }
 
         message.to = func_switcher.get("to")(data['to'], 'to')
@@ -72,6 +73,7 @@ class EmailService():
         message.header = func_switcher.get("header")(data['headers'])
         message.category = func_switcher.get("category")(data['categories'])
 
+        #pylint: disable=broad-except
         try:
             #logging.warning(message.get())
             sendgrid_client = SendGridAPIClient(data['SENDGRID_API_KEY'])
@@ -82,4 +84,3 @@ class EmailService():
             print(error.to_dict)
         except Exception as error:
             resp.body = json.dumps(str(error))
-
