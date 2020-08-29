@@ -63,15 +63,24 @@ class EmailService():
         }
 
         message.to = func_switcher.get("to")(data['to'], 'to')
-        message.cc = func_switcher.get("cc")(data['cc'], 'cc')
-        message.bcc = func_switcher.get("bcc")(data['bcc'], 'bcc')
-        message.content = func_switcher.get("content")(data['content'])
-        message.attachment = func_switcher.get("attachment")(data['attachments'])
-        message.tracking_settings = func_switcher.get("tracking_settings")(data['tracking_settings'])
-        message.custom_arg = func_switcher.get("custom_arg")(data['custom_args'])
-        message.section = func_switcher.get("section")(data['sections'])
-        message.header = func_switcher.get("header")(data['headers'])
-        message.category = func_switcher.get("category")(data['categories'])
+        if 'cc' in data.keys():
+            message.cc = func_switcher.get("cc")(data['cc'], 'cc')
+        if 'bcc' in data.keys():
+            message.bcc = func_switcher.get("bcc")(data['bcc'], 'bcc')
+        if 'content' in data.keys():
+            message.content = func_switcher.get("content")(data['content'])
+        if 'attachment' in data.keys():
+            message.attachment = func_switcher.get("attachment")(data['attachments'])
+        if 'tracking_settings' in data.keys():
+            message.tracking_settings = func_switcher.get("tracking_settings")(data['tracking_settings'])
+        if 'custom_arg' in data.keys():
+            message.custom_arg = func_switcher.get("custom_arg")(data['custom_args'])
+        if 'section' in data.keys():
+            message.section = func_switcher.get("section")(data['sections'])
+        if 'header' in data.keys():
+            message.header = func_switcher.get("header")(data['headers'])
+        if 'category' in data.keys():
+            message.category = func_switcher.get("category")(data['categories'])
 
         #pylint: disable=broad-except
         try:
