@@ -11,7 +11,7 @@ A sample POST data is provided in ``` data-sample.json ``` and ``` data-full.jso
 
 Terminal command with curl:
 ```
-curl --location --request POST 'https://sfds-dev.apigee.net/emailservice' \
+curl --location --request POST 'http://127.0.0.1:8000/email' \
 --header 'x-apikey: [INSERT YOUR APIGEE API KEY HERE]' \
 --header 'Content-Type: text/plain' \
 -d @data-sample.json
