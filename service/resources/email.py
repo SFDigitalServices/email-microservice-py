@@ -1,4 +1,5 @@
 """ Email """
+import os
 import json
 import falcon
 from sendgrid import SendGridAPIClient
@@ -85,11 +86,15 @@ class EmailService():
         #pylint: disable=broad-except
         try:
             #logging.warning(message.get())
-            sendgrid_client = SendGridAPIClient(data['SENDGRID_API_KEY'])
+            sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
+
+            sendgrid_client = SendGridAPIClient(sendgrid_api_key)
             response = sendgrid_client.send(message)
             resp.body = response.body
             resp.status = falcon.HTTP_200
         except HTTPError as error:
+            print("error")
             print(error.to_dict)
         except Exception as error:
+            print("exception")
             resp.body = json.dumps(str(error))
