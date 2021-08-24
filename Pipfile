@@ -18,6 +18,7 @@ pre-commit = "*"
 pylint = "*"
 sendgrid = "*"
 urllib3 = ">=1.26.5"
+jinja2 = "*"
 
 [requires]
 python_version = "3.7"
