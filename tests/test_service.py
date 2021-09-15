@@ -2,9 +2,12 @@
 """Tests for microservice"""
 import json
 import jsend
+from unittest.mock import patch
 import pytest
+import falcon
 from falcon import testing
 import service.microservice
+import tests.mocks as mocks
 
 CLIENT_HEADERS = {
     "ACCESS_KEY": "1234567"
@@ -19,6 +22,7 @@ def client():
 def mock_env_access_key(monkeypatch):
     """ mock environment access key """
     monkeypatch.setenv("ACCESS_KEY", CLIENT_HEADERS["ACCESS_KEY"])
+    monkeypatch.setenv("SENDGRID_API_KEY", "abc123")
 
 @pytest.fixture
 def mock_env_no_access_key(monkeypatch):
@@ -57,3 +61,26 @@ def test_default_error(client, mock_env_access_key):
 
     expected_msg_error = jsend.error('404 - Not Found')
     assert json.loads(response.content) == expected_msg_error
+
+@patch('urllib.request.urlopen')
+@patch('sendgrid.SendGridAPIClient')
+def test_email(mock_sendgrid_client, mock_urlopen, client, mock_env_access_key):
+    """Test email endpoint"""
+    mock_sendgrid_client.return_value.send.return_value.body = "response body"
+    mock_sendgrid_client.return_value.send.return_value.status = 200
+    mock_urlopen.return_value.read.return_value = b"fake_data"
+
+    response = client.simulate_post('/email', json=mocks.EMAIL_POST)
+
+    assert response.status == falcon.HTTP_200
+
+@patch('urllib.request.urlopen')
+@patch('sendgrid.SendGridAPIClient')
+def test_email_error(mock_sendgrid_client, mock_urlopen, client, mock_env_access_key):
+    """Test email endpoint"""
+    mock_sendgrid_client.return_value.send.side_effect = Exception("Error!")
+    mock_urlopen.return_value.read.return_value = b"fake_data"
+
+    response = client.simulate_post('/email', json=mocks.EMAIL_POST)
+
+    assert response.status == falcon.HTTP_500
