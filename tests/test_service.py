@@ -1,13 +1,13 @@
-# pylint: disable=redefined-outer-name
+# pylint: disable=redefined-outer-name,no-member,unused-argument
 """Tests for microservice"""
 import json
-import jsend
 from unittest.mock import patch
+import jsend
 import pytest
 import falcon
 from falcon import testing
 import service.microservice
-import tests.mocks as mocks
+from tests import mocks
 
 CLIENT_HEADERS = {
     "ACCESS_KEY": "1234567"
@@ -68,9 +68,24 @@ def test_email(mock_sendgrid_client, mock_urlopen, client, mock_env_access_key):
     """Test email endpoint"""
     mock_sendgrid_client.return_value.send.return_value.body = "response body"
     mock_sendgrid_client.return_value.send.return_value.status = 200
-    mock_urlopen.return_value.read.return_value = b"fake_data"
+    mock_urlopen.return_value.__enter__.return_value.read.return_value = b"fake_data"
 
     response = client.simulate_post('/email', json=mocks.EMAIL_POST)
+
+    assert response.status == falcon.HTTP_200
+
+@patch('urllib.request.urlopen')
+@patch('sendgrid.SendGridAPIClient')
+def test_email_template(mock_sendgrid_client, mock_urlopen, client, mock_env_access_key):
+    """Test email endpoint"""
+    mock_sendgrid_client.return_value.send.return_value.body = "response body"
+    mock_sendgrid_client.return_value.send.return_value.status = 200
+    mock_urlopen.return_value.__enter__.return_value.read.side_effect = [mocks.EMAIL_HTML, b"fake_data", b"fake_data"]
+
+    params = mocks.EMAIL_POST.copy()
+    del params['content']
+    params['template'] = mocks.TEMPLATE_PARAMS
+    response = client.simulate_post('/email', json=params)
 
     assert response.status == falcon.HTTP_200
 

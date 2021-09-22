@@ -2,18 +2,11 @@
 Set of helper functions to handler sendgrid email api options
 """
 import base64
-import urllib.request as urllib
+import urllib.request
 from sendgrid.helpers.mail import (
-    To, Cc, Bcc, Header,
+    To, Cc, Bcc,
     CustomArg, Content, Attachment, FileName,
-    FileContent, FileType,
-    Section, Category, MailSettings, BccSettings, BccSettingsEmail,
-    BypassListManagement, FooterSettings, FooterText,
-    FooterHtml, SandBoxMode, SpamCheck, SpamThreshold, SpamUrl,
-    TrackingSettings, ClickTracking, SubscriptionTracking,
-    SubscriptionText, SubscriptionHtml, SubscriptionSubstitutionTag,
-    OpenTracking, OpenTrackingSubstitutionTag, Ganalytics,
-    UtmSource, UtmMedium, UtmTerm, UtmContent, UtmCampaign)
+    FileContent, FileType)
 
 class HelperService():
     """ Helper class for sendgrid options """
@@ -25,8 +18,9 @@ class HelperService():
         for attachment in attachments:
             if 'path' in attachment.keys() and attachment['path'] is not None and attachment['path'] != "":
                 file_path = attachment['path']
-                data = urllib.urlopen(file_path).read()
-                encoded = base64.b64encode(data).decode()
+                with urllib.request.urlopen(file_path) as conn:
+                    data = conn.read()
+                    encoded = base64.b64encode(data).decode()
             else:
                 encoded = base64.b64encode(bytes(attachment['content'], 'utf-8')).decode()
 

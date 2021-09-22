@@ -1,3 +1,5 @@
+""" mocks """
+
 EMAIL_POST = {
     'subject': 'unit test',
     'to': [{
@@ -37,5 +39,13 @@ EMAIL_POST = {
         'group_id': 1,
         'groups_to_display': [1, 2]
     }
-
 }
+
+TEMPLATE_PARAMS = {
+        'url': '',
+        'replacements': {
+            'what_knights_say': 'ni'
+        }
+    }
+
+EMAIL_HTML = "<h1>Knights that say {{ what_knights_say }}!</h1>"

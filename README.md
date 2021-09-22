@@ -68,5 +68,21 @@ For detail of the fields in the json data, please see below.
 |sections| An object of key/value pairs that define block sections of code to be used as substitutions. The key/value pairs must be strings. ||| optional|
 |subject| The subject of your email. Char length requirements, according to the RFC - http://stackoverflow.com/questions/1592291/what-is-the-email-subject-length-limit#answer-1592310| ||required|
 
-Code coverage command with missing statement line numbers  
-> $ pipenv run python -m pytest -s --cov=service --cov=tasks tests/ --cov-report term-missing
+## Testing
+Code coverage command with missing statement line numbers
+```
+pipenv run python -m pytest -s --cov=service --cov=tasks tests/ --cov-report term-missing
+```
+
+## Revising the database
+Create a migration
+```
+pipenv run alembic revision -m "Add a column"
+```
+Edit the created revision file to add the steps to implement and rollback
+the changes you want to make.
+
+Run DB migrations
+```
+pipenv run alembic upgrade head
+```

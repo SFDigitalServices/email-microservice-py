@@ -1,10 +1,13 @@
 """ Email """
 import os
 import json
+import traceback
+import urllib.request
 import falcon
 import sendgrid
-from sendgrid.helpers.mail import (Mail, From, Subject, TemplateId, Asm, GroupId, GroupsToDisplay, BatchId)
-from python_http_client.exceptions import HTTPError
+from sendgrid.helpers.mail import (Mail, From, Subject, Asm, GroupId, GroupsToDisplay)
+from jinja2 import Template
+from bs4 import BeautifulSoup
 from .helpers.helpers import HelperService
 from .hooks import validate_access
 
@@ -13,9 +16,15 @@ class EmailService():
     """ Email service """
     def on_post(self, req, resp):
         """ Implement POST """
-        data = json.loads(req.bounded_stream.read())
-
-        self.send_email(data, resp)
+        # pylint: disable=broad-except
+        try:
+            data = json.loads(req.bounded_stream.read())
+            self.send_email(data, resp)
+        except Exception as error:
+            print(f"EmailService exception: {error}")
+            print(traceback.format_exc())
+            resp.status = falcon.HTTP_500   # pylint: disable=no-member
+            resp.text = json.dumps(str(error))
 
     @staticmethod
     def send_email(data, resp):
@@ -44,32 +53,58 @@ class EmailService():
         }
 
         message.to = func_switcher.get("to")(data['to'], 'to')
-        if 'cc' in data.keys():
+        data_keys = data.keys()
+        if 'cc' in data_keys:
             message.cc = func_switcher.get("cc")(data['cc'], 'cc')
-        if 'bcc' in data.keys():
+        if 'bcc' in data_keys:
             message.bcc = func_switcher.get("bcc")(data['bcc'], 'bcc')
-        if 'content' in data.keys():
+        if 'template' in data_keys and not 'content' in data_keys:
+            data['content'] = generate_template_content(data['template'])
+            data_keys = data.keys()
+        if 'content' in data_keys:
             message.content = func_switcher.get("content")(data['content'])
-        if 'attachments' in data.keys():
+        if 'attachments' in data_keys:
             message.attachment = func_switcher.get("attachments")(data['attachments'])
-        if 'custom_args' in data.keys():
+        if 'custom_args' in data_keys:
             message.custom_arg = func_switcher.get("custom_args")(data['custom_args'])
-        # if 'section' in data.keys():
+        # if 'section' in data_keys:
         #     message.section = func_switcher.get("section")(data['sections'])
-        # if 'header' in data.keys():
+        # if 'header' in data_keys:
         #     message.header = func_switcher.get("header")(data['headers'])
-        # if 'category' in data.keys():
+        # if 'category' in data_keys:
         #     message.category = func_switcher.get("category")(data['categories'])
 
-        #pylint: disable=broad-except
-        try:
-            #logging.warning(message.get())
-            sendgrid_client = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
-            response = sendgrid_client.send(message)
+        #logging.warning(message.get())
+        sendgrid_client = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
+        response = sendgrid_client.send(message)
 
-            resp.body = response.body
-            resp.status = falcon.HTTP_200
-        except Exception as error:
-            print("send exception: {0}".format(error))
-            resp.status = falcon.HTTP_500
-            resp.body = json.dumps(str(error))
+        resp.text = response.body
+        resp.status = falcon.HTTP_200   # pylint: disable=no-member
+
+def generate_template_content(template_params):
+    """ generate array of html/plain text content from template """
+    result = []
+
+    # url and replacements are required
+    if 'url' not in template_params:
+        raise KeyError('url value is required for email template')
+    if 'replacements' not in template_params:
+        raise KeyError('replacement values are required for email template')
+
+    with urllib.request.urlopen(template_params['url']) as conn:
+        template_content = conn.read()
+        template = Template(template_content)
+        html_content = template.render(template_params['replacements'])
+
+        result.append({
+            "type": "text/html",
+            "value": html_content
+        })
+
+        soup = BeautifulSoup(html_content, features="html.parser")
+        result.append({
+            "type": "text/plain",
+            "value": soup.get_text()
+        })
+
+    return result
