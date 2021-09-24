@@ -18,7 +18,11 @@ class HelperService():
         for attachment in attachments:
             if 'path' in attachment.keys() and attachment['path'] is not None and attachment['path'] != "":
                 file_path = attachment['path']
-                with urllib.request.urlopen(file_path) as conn:
+                req = urllib.request.Request(file_path)
+                if attachment.get('headers'):
+                    for header, header_value in attachment.get('headers').items():
+                        req.add_header(header, header_value)
+                with urllib.request.urlopen(req) as conn:
                     data = conn.read()
                     encoded = base64.b64encode(data).decode()
             else:

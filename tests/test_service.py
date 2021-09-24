@@ -66,7 +66,8 @@ def test_default_error(client, mock_env_access_key):
 @patch('sendgrid.SendGridAPIClient')
 def test_email(mock_sendgrid_client, mock_urlopen, client, mock_env_access_key):
     """Test email endpoint"""
-    mock_sendgrid_client.return_value.send.return_value.body = "response body"
+    print("test_email")
+    mock_sendgrid_client.return_value.send.return_value.body = "sendgrid response goes here"
     mock_sendgrid_client.return_value.send.return_value.status = 200
     mock_urlopen.return_value.__enter__.return_value.read.return_value = b"fake_data"
 
@@ -78,7 +79,8 @@ def test_email(mock_sendgrid_client, mock_urlopen, client, mock_env_access_key):
 @patch('sendgrid.SendGridAPIClient')
 def test_email_template(mock_sendgrid_client, mock_urlopen, client, mock_env_access_key):
     """Test email endpoint"""
-    mock_sendgrid_client.return_value.send.return_value.body = "response body"
+    print("test_email_template")
+    mock_sendgrid_client.return_value.send.return_value.body = "sendgrid response goes here"
     mock_sendgrid_client.return_value.send.return_value.status = 200
     mock_urlopen.return_value.__enter__.return_value.read.side_effect = [mocks.EMAIL_HTML, b"fake_data", b"fake_data"]
 
@@ -93,8 +95,9 @@ def test_email_template(mock_sendgrid_client, mock_urlopen, client, mock_env_acc
 @patch('sendgrid.SendGridAPIClient')
 def test_email_error(mock_sendgrid_client, mock_urlopen, client, mock_env_access_key):
     """Test email endpoint"""
+    print("test_email_error")
     mock_sendgrid_client.return_value.send.side_effect = Exception("Error!")
-    mock_urlopen.return_value.read.return_value = b"fake_data"
+    mock_urlopen.return_value.__enter__.return_value.read.return_value = b"fake_data"
 
     response = client.simulate_post('/email', json=mocks.EMAIL_POST)
 

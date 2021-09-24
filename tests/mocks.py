@@ -21,7 +21,10 @@ EMAIL_POST = {
     },{
         'filename': 'test.pdf',
         'path': 'https://www.sf.gov/test.pdf',
-        'type': 'application/pdf'
+        'type': 'application/pdf',
+        'headers': {
+            'api-key': '123ABC'
+        }
     }],
     'cc': [{
         'email': 'cc-recipient@sf.gov',

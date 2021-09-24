@@ -3,11 +3,13 @@ import os
 import json
 import traceback
 import urllib.request
+import mimetypes
 import falcon
 import sendgrid
 from sendgrid.helpers.mail import (Mail, From, Subject, Asm, GroupId, GroupsToDisplay)
 from jinja2 import Template
 from bs4 import BeautifulSoup
+from service.resources.db import HistoryModel
 from .helpers.helpers import HelperService
 from .hooks import validate_access
 
@@ -16,15 +18,24 @@ class EmailService():
     """ Email service """
     def on_post(self, req, resp):
         """ Implement POST """
-        # pylint: disable=broad-except
+        # pylint: disable=broad-except,no-member
+        history_event = HistoryModel()
         try:
             data = json.loads(req.bounded_stream.read())
-            self.send_email(data, resp)
+            history_event.request = data
+
+            history_event.email_content = self.send_email(data, resp)
+            history_event.result = resp.text
         except Exception as error:
             print(f"EmailService exception: {error}")
             print(traceback.format_exc())
             resp.status = falcon.HTTP_500   # pylint: disable=no-member
             resp.text = json.dumps(str(error))
+
+            history_event.result = resp.text
+        finally:
+            self.session.add(history_event)
+            self.session.commit()
 
     @staticmethod
     def send_email(data, resp):
@@ -81,6 +92,8 @@ class EmailService():
         resp.text = response.body
         resp.status = falcon.HTTP_200   # pylint: disable=no-member
 
+        return [c.get() for c in message.contents]
+
 def generate_template_content(template_params):
     """ generate array of html/plain text content from template """
     result = []
@@ -97,13 +110,13 @@ def generate_template_content(template_params):
         html_content = template.render(template_params['replacements'])
 
         result.append({
-            "type": "text/html",
+            "type": mimetypes.types_map['.html'],
             "value": html_content
         })
 
         soup = BeautifulSoup(html_content, features="html.parser")
         result.append({
-            "type": "text/plain",
+            "type": mimetypes.types_map['.txt'],
             "value": soup.get_text()
         })
 
