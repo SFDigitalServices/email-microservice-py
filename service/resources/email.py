@@ -89,6 +89,8 @@ class EmailService():
         sendgrid_client = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
         response = sendgrid_client.send(message)
 
+        print(f"response: {response.body}")
+        print(f"status: {response.status_code}")
         resp.text = response.body
         resp.status = falcon.HTTP_200   # pylint: disable=no-member
 
@@ -105,7 +107,7 @@ def generate_template_content(template_params):
         raise KeyError('replacement values are required for email template')
 
     with urllib.request.urlopen(template_params['url']) as conn:
-        template_content = conn.read()
+        template_content = conn.read().decode("utf-8")
         template = Template(template_content)
         html_content = template.render(template_params['replacements'])
 
