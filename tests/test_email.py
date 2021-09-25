@@ -14,7 +14,7 @@ def test_generate_template_content(mock_urlopen):
     with pytest.raises(KeyError):
         generate_template_content({'replacements': {'foo': 'bar'}})
 
-    mock_urlopen.return_value.__enter__.return_value.read.return_value = mocks.EMAIL_HTML
+    mock_urlopen.return_value.__enter__.return_value.read.return_value = str.encode(mocks.EMAIL_HTML)
     results = generate_template_content({
         'url': 'https://some.place.com',
         'replacements': {
