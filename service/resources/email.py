@@ -107,7 +107,9 @@ def generate_template_content(template_params):
         raise KeyError('replacement values are required for email template')
 
     with urllib.request.urlopen(template_params['url']) as conn:
-        template_content = conn.read().decode("utf-8")
+        template_content = conn.read()
+        if not isinstance(template_content, str):
+            template_content = template_content.decode("utf-8")
         template = Template(template_content)
         html_content = template.render(template_params['replacements'])
 
