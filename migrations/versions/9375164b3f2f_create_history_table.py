@@ -24,7 +24,7 @@ def upgrade():
         sa.Column('id', sa.Integer, primary_key=True, nullable=False),
         sa.Column('request', postgres.JSONB, nullable=False),
         sa.Column('email_content', postgres.JSONB),
-        sa.Column('result', sa.VARCHAR(256)),
+        sa.Column('result', sa.TEXT),
         sa.Column('date_created', sa.DateTime(timezone=True))
     )
 

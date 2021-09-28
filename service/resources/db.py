@@ -22,5 +22,5 @@ class HistoryModel(BASE):
     id = sa.Column(sa.Integer, primary_key=True)
     request = sa.Column(postgres.JSONB, nullable=False)
     email_content = sa.Column(postgres.JSONB)
-    result = sa.Column(sa.VARCHAR(256))
+    result = sa.Column(sa.TEXT)
     date_created = sa.Column(sa.DateTime(timezone=True), server_default=func.now())
