@@ -36,36 +36,6 @@ class HelperService():
 
         return attachment_list
 
-    # @staticmethod
-    # def get_email_trackings(settings):
-    #     """ This function sets up email trackings """
-    #     tracking_settings = TrackingSettings()
-    #     if 'click_tracking' in settings.keys() and settings['click_tracking'] is not None:
-    #         tracking_settings.click_tracking = ClickTracking(
-    #             settings['click_tracking']['enable'],
-    #             settings['click_tracking']['enable_text'])
-    #     if 'open_tracking' in settings.keys() and settings['open_tracking'] is not None:
-    #         tracking_settings.open_tracking = OpenTracking(
-    #             settings['open_tracking']['enable'],
-    #             OpenTrackingSubstitutionTag(settings['open_tracking']['substitution_tag'])
-    #         )
-    #     if 'subscription_tracking' in settings.keys() and settings['subscription_tracking'] is not None:
-    #         tracking_settings.subscription_tracking = SubscriptionTracking(
-    #             settings['subscription_tracking']['enable'],
-    #             SubscriptionText(settings['subscription_tracking']['text']),
-    #             SubscriptionHtml(settings['subscription_tracking']['html']),
-    #             SubscriptionSubstitutionTag(settings['subscription_tracking']['substitution_tag']))
-    #     if 'ganalytics' in settings.keys() and settings['ganalytics'] is not None:
-    #         tracking_settings.ganalytics = Ganalytics(
-    #             settings['ganalytics']['enable'],
-    #             UtmSource(settings['ganalytics']['utm_source']),
-    #             UtmMedium(settings['ganalytics']['utm_medium']),
-    #             UtmTerm(settings['ganalytics']['utm_term']),
-    #             UtmContent(settings['ganalytics']['utm_content']),
-    #             UtmCampaign(settings['ganalytics']['utm_campaign'])
-    #         )
-    #     return tracking_settings
-
     @staticmethod
     def get_custom_args(custom_args):
         """ This function sets up email custom args """
@@ -73,58 +43,6 @@ class HelperService():
         for custom_arg_key, custom_arg_value in custom_args.items():
             custom_arg_list.append(CustomArg(custom_arg_key, custom_arg_value))
         return custom_arg_list
-
-    # @staticmethod
-    # def get_mail_settings(settings):
-    #     """ This function sets up email settings """
-    #     mail_settings = MailSettings()
-    #     if 'bcc' in settings.keys() and settings['bcc'] is not None:
-    #         mail_settings.bcc_settings = BccSettings(
-    #             settings['bcc']['enable'],
-    #             BccSettingsEmail(settings['bcc']['email'])
-    #         )
-    #     if 'bypass_list_management' in settings.keys() and settings['bypass_list_management'] is not None:
-    #         mail_settings.bypass_list_management = BypassListManagement(
-    #             settings['bypass_list_management']['enable'])
-    #     if 'footer' in settings.keys() and settings['footer'] is not None:
-    #         mail_settings.footer_settings = FooterSettings(
-    #             settings['footer']['enable'],
-    #             FooterText(settings['footer']['text']),
-    #             FooterHtml(settings['footer']['html'])
-    #         )
-    #     if 'sandbox_mode' in settings.keys() and settings['sandbox_mode'] is not None:
-    #         mail_settings.sandbox_mode = SandBoxMode(settings['sandbox_mode']['enable'])
-    #     if 'spam_check' in settings.keys() and settings['spam_check'] is not None:
-    #         mail_settings.spam_check = SpamCheck(
-    #             settings['spam_check']['enable'],
-    #             SpamThreshold(settings['spam_check']['threshold']),
-    #             SpamUrl(settings['spam_check']['post_to_url'])
-    #         )
-    #     return mail_settings
-
-    # @staticmethod
-    # def get_sections(sections):
-    #     """ This function sets up email Sections """
-    #     email_sections = []
-    #     for section_key, section_value in sections.items():
-    #         email_sections.append(Section(section_key, section_value))
-    #     return email_sections
-
-    # @staticmethod
-    # def get_headers(headers):
-    #     """ This function sets up email headers """
-    #     email_headers = []
-    #     for header_key, header_value in headers.items():
-    #         email_headers.append(Header(header_key, header_value))
-    #     return email_headers
-
-    # @staticmethod
-    # def get_category(categories):
-    #     """ This function sets up email Categories """
-    #     email_categories = []
-    #     for category in categories:
-    #         email_categories.append(Category(category))
-    #     return email_categories
 
     @staticmethod
     def get_emails(emails, email_type):

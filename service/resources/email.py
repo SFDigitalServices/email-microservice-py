@@ -58,9 +58,6 @@ class EmailService():
             "content": HelperService.get_content,
             "attachments": HelperService.get_attachments,
             "custom_args": HelperService.get_custom_args
-            # "section": HelperService.get_sections,
-            # "header": HelperService.get_headers,
-            # "category": HelperService.get_category
         }
 
         message.to = func_switcher.get("to")(data['to'], 'to')
@@ -78,12 +75,6 @@ class EmailService():
             message.attachment = func_switcher.get("attachments")(data['attachments'])
         if 'custom_args' in data_keys:
             message.custom_arg = func_switcher.get("custom_args")(data['custom_args'])
-        # if 'section' in data_keys:
-        #     message.section = func_switcher.get("section")(data['sections'])
-        # if 'header' in data_keys:
-        #     message.header = func_switcher.get("header")(data['headers'])
-        # if 'category' in data_keys:
-        #     message.category = func_switcher.get("category")(data['categories'])
 
         #logging.warning(message.get())
         sendgrid_client = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
