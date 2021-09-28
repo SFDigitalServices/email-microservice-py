@@ -17,7 +17,7 @@ class HistoryModel(BASE):
     # pylint: disable=too-few-public-methods
     """Map History object to db"""
 
-    __tablename__ = os.environ.get('TABLENAME', 'history')
+    __tablename__ = 'history'
 
     id = sa.Column(sa.Integer, primary_key=True)
     request = sa.Column(postgres.JSONB, nullable=False)
