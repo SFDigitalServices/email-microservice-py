@@ -1,0 +1,27 @@
+{
+    "addons": [
+      {
+        "plan": "papertrail:choklad"
+      },
+      {
+        "plan": "quotaguardstatic:starter"
+      }
+    ],
+    "buildpacks": [
+      {
+        "url": "heroku/python"
+      },
+      {
+        "url": "https://github.com/SFDigitalServices/heroku-configvar-files-buildpack"
+      }
+    ],
+    "env": {
+    },
+    "formation": {
+    },
+    "name": "email-microservice",
+    "scripts": {
+      "postdeploy": "pipenv run alembic upgrade head"
+    },
+    "stack": "heroku-20"
+  }

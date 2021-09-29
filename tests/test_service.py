@@ -1,10 +1,13 @@
-# pylint: disable=redefined-outer-name
+# pylint: disable=redefined-outer-name,no-member,unused-argument
 """Tests for microservice"""
 import json
+from unittest.mock import patch
 import jsend
 import pytest
+import falcon
 from falcon import testing
 import service.microservice
+from tests import mocks
 
 CLIENT_HEADERS = {
     "ACCESS_KEY": "1234567"
@@ -19,6 +22,7 @@ def client():
 def mock_env_access_key(monkeypatch):
     """ mock environment access key """
     monkeypatch.setenv("ACCESS_KEY", CLIENT_HEADERS["ACCESS_KEY"])
+    monkeypatch.setenv("SENDGRID_API_KEY", "abc123")
 
 @pytest.fixture
 def mock_env_no_access_key(monkeypatch):
@@ -57,3 +61,44 @@ def test_default_error(client, mock_env_access_key):
 
     expected_msg_error = jsend.error('404 - Not Found')
     assert json.loads(response.content) == expected_msg_error
+
+@patch('urllib.request.urlopen')
+@patch('sendgrid.SendGridAPIClient')
+def test_email(mock_sendgrid_client, mock_urlopen, client, mock_env_access_key):
+    """Test email endpoint"""
+    print("test_email")
+    mock_sendgrid_client.return_value.send.return_value.body = "sendgrid response goes here"
+    mock_sendgrid_client.return_value.send.return_value.status = 200
+    mock_urlopen.return_value.__enter__.return_value.read.return_value = b"fake_data"
+
+    response = client.simulate_post('/email', json=mocks.EMAIL_POST)
+
+    assert response.status == falcon.HTTP_200
+
+@patch('urllib.request.urlopen')
+@patch('sendgrid.SendGridAPIClient')
+def test_email_template(mock_sendgrid_client, mock_urlopen, client, mock_env_access_key):
+    """Test email endpoint"""
+    print("test_email_template")
+    mock_sendgrid_client.return_value.send.return_value.body = "sendgrid response goes here"
+    mock_sendgrid_client.return_value.send.return_value.status = 200
+    mock_urlopen.return_value.__enter__.return_value.read.side_effect = [mocks.EMAIL_HTML, b"fake_data", b"fake_data"]
+
+    params = mocks.EMAIL_POST.copy()
+    del params['content']
+    params['template'] = mocks.TEMPLATE_PARAMS
+    response = client.simulate_post('/email', json=params)
+
+    assert response.status == falcon.HTTP_200
+
+@patch('urllib.request.urlopen')
+@patch('sendgrid.SendGridAPIClient')
+def test_email_error(mock_sendgrid_client, mock_urlopen, client, mock_env_access_key):
+    """Test email endpoint"""
+    print("test_email_error")
+    mock_sendgrid_client.return_value.send.side_effect = Exception("Error!")
+    mock_urlopen.return_value.__enter__.return_value.read.return_value = b"fake_data"
+
+    response = client.simulate_post('/email', json=mocks.EMAIL_POST)
+
+    assert response.status == falcon.HTTP_500

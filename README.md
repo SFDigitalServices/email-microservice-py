@@ -62,44 +62,27 @@ For detail of the fields in the json data, please see below.
 &nbsp;&nbsp;|enable | Indicates if this setting is enabled.| optional |
 &nbsp;&nbsp;|post_to_url | An Inbound Parse URL that you would like a copy of your email along with the spam report to be sent to.| optional |
 &nbsp;&nbsp;| threshold | The threshold used to determine if your content qualifies as spam on a scale from 1 to 10, with 10 being most strict, or most likely to be considered as spam.| optional |
-|personalizations | An array of messages and their metadata. Each object within personalizations can be thought of as an envelope - it defines who should receive an individual message and how that message should be handled.| ||required |
-&nbsp;|to| An array of recipients. Each object within this array may contain the name, but must always contain the email, of a recipient.|| required|
-&nbsp;&nbsp;|email | Email | required |
-&nbsp;&nbsp;|name | The name of the person or company that is sending the email.| optional|
-&nbsp;|bcc | An array of recipients who will receive a blind carbon copy of your email. Each object within this array may contain the name, but must always contain the email, of a recipient.| |optional |
-&nbsp;&nbsp;|email | Email | required |
-&nbsp;&nbsp;|name | The name of the person or company that is sending the email. | optional|
-&nbsp;|cc | An array of recipients who will receive a copy of your email. Each object within this array may contain the name, but must always contain the email, of a recipient.|| optional |
-&nbsp;&nbsp;|email | Email | required |
-&nbsp;&nbsp;|name | The name of the person or company that is sending the email. | optional|
-&nbsp;|custom_args| Values that are specific to this personalization that will be carried along with the email and its activity data. Substitutions will not be made on custom arguments, so any string that is entered into this parameter will be assumed to be the custom argument that you would like to be used. May not exceed 10,000 bytes.| | optional |
-&nbsp;|headers| A collection of JSON key/value pairs allowing you to specify specific handling instructions for your email. You may not overwrite the following headers: x-sg-id, x-sg-eid, received, dkim-signature, Content-Type, Content-Transfer-Encoding, To, From, Subject, Reply-To, CC, BCC || optional|
-&nbsp;|subject |The subject of your email. Char length requirements, according to the RFC - http://stackoverflow.com/questions/1592291/what-is-the-email-subject-length-limit#answer-1592310 | | required |
 |reply_to | | required |
 &nbsp;|email | Email | | required |
 &nbsp;|name | The name of the person or company that is sending the email. || optional|
 |sections| An object of key/value pairs that define block sections of code to be used as substitutions. The key/value pairs must be strings. ||| optional|
-|send_at | A unix timestamp allowing you to specify when you want your email to be delivered. This may be overridden by the personalizations[x].send_at parameter. You can't schedule more than 72 hours in advance. If you have the flexibility, it's better to schedule mail for off-peak times. Most emails are scheduled and sent at the top of the hour or half hour. Scheduling email to avoid those times (for example, scheduling at 10:53) can result in lower deferral rates because it won't be going through our servers at the same times as everyone else's mail.||| optional |
 |subject| The subject of your email. Char length requirements, according to the RFC - http://stackoverflow.com/questions/1592291/what-is-the-email-subject-length-limit#answer-1592310| ||required|
-|template_id | The id of a template that you would like to use. If you use a template that contains a subject and content (either text or html), you do not need to specify those at the personalizations nor message level.| ||optional |
-|dynamic_template_data| If `template_id` is specified, the key/value pair will be mapped in the template. See [Dynamic Template Data](https://sendgrid.com/docs/ui/sending-email/how-to-send-an-email-with-dynamic-transactional-templates/) for more details.| || optional |
-|tracking_settings | Settings to determine how you would like to track the metrics of how your recipients interact with your email.| || optional |
-&nbsp;|click_tracking| Allows you to track whether a recipient clicked a link in your email.|| optional|
-&nbsp;&nbsp;|enable| Indicates if this setting is enabled.| optional|
-&nbsp;&nbsp;|enable_text|Indicates if this setting should be included in the text/plain portion of your email. | optional|
-&nbsp;|ganalytics |Allows you to enable tracking provided by Google Analytics. | | optional|
-&nbsp;&nbsp;|enable | Indicates if this setting is enabled.| optional|
-&nbsp;&nbsp;|utm_source Name of the referrer source. (e.g. Google SomeDomain.com or Marketing Email) | optional|
-&nbsp;&nbsp;|utm_medium NAME OF YOUR MARKETING MEDIUM e.g. email| optional|
-&nbsp;&nbsp;|utm_term IDENTIFY PAID KEYWORDS HERE| optional|
-&nbsp;&nbsp;|utm_content USE THIS SPACE TO DIFFERENTIATE YOUR EMAIL FROM ADS| optional|
-&nbsp;&nbsp;|utm_campaign The name of the campaign| optional|
-&nbsp;|open_tracking |Allows you to track whether the email was opened or not, but including a single pixel image in the body of the content. When the pixel is loaded, we can log that the email was opened. | | optional |
-&nbsp;&nbsp;|enable | Indicates if this setting is enabled.| optional|
-&nbsp;&nbsp;|substitution_tag| Allows you to specify a substitution tag that you can insert in the body of your email at a location that you desire. This tag will be replaced by the open tracking pixel. | optional|
-&nbsp;|subscription_tracking |Allows you to insert a subscription management link at the bottom of the text and html bodies of your email. If you would like to specify the location of the link within your email, you may use the substitution_tag. | | optional|
-&nbsp;&nbsp;|enable | Indicates if this setting is enabled.| optional|
-&nbsp;&nbsp;|html | HTML to be appended to the email, with the subscription tracking link. You may control where the link is by using the tag <% %>| optional| If you would like to unsubscribe and stop receiving these emails <% clickhere %>.
-&nbsp;&nbsp;|substitution_tag| A tag that will be replaced with the unsubscribe URL. for example: [unsubscribe_url]. If this parameter is used, it will override both the text and html parameters. The URL of the link will be placed at the substitution tag’s location, with no additional formatting. | optional|
-&nbsp;&nbsp;|text | Text to be appended to the email, with the subscription tracking link. You may control where the link is by using the tag <% %>| optional|
 
+## Testing
+Code coverage command with missing statement line numbers
+```
+pipenv run python -m pytest -s --cov=service --cov=tasks tests/ --cov-report term-missing
+```
+
+## Revising the database
+Create a migration
+```
+pipenv run alembic revision -m "Add a column"
+```
+Edit the created revision file to add the steps to implement and rollback
+the changes you want to make.
+
+Run DB migrations
+```
+pipenv run alembic upgrade head
+```
