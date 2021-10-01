@@ -2,7 +2,7 @@
 from unittest.mock import patch
 import pytest
 from tests import mocks
-from service.resources.email import generate_template_content
+from service.resources.email import generate_template_content, utc_to_pacific
 
 @patch('urllib.request.urlopen')
 def test_generate_template_content(mock_urlopen):
@@ -26,3 +26,8 @@ def test_generate_template_content(mock_urlopen):
     assert results[0]['value'] == '<h1>Knights that say ni!</h1>'
     assert results[1]['type'] == 'text/plain'
     assert results[1]['value'] == 'Knights that say ni!'
+
+def test_utc_to_pacific():
+    """ test conversion of utc datetime string to pacific """
+    date_string = utc_to_pacific(mocks.UTC_DATETIME_STRING)
+    assert date_string == mocks.PACIFIC_DATETIME_STRING

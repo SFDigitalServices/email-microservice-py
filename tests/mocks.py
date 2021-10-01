@@ -52,3 +52,6 @@ TEMPLATE_PARAMS = {
     }
 
 EMAIL_HTML = "<h1>Knights that say {{ what_knights_say }}!</h1>"
+
+UTC_DATETIME_STRING = "2021-09-30T20:56:58.000Z"
+PACIFIC_DATETIME_STRING = "Sep 30, 2021 1:56:58 PM"
