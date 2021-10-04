@@ -23,6 +23,7 @@ sqlalchemy = "*"
 psycopg2 = "*"
 alembic = "*"
 bs4 = "*"
+python-dateutil = "*"
 
 [requires]
 python_version = "3.7"
