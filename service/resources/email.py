@@ -4,6 +4,7 @@ import json
 import traceback
 import urllib.request
 import mimetypes
+from copy import deepcopy
 from dateutil.parser import parse
 from dateutil import tz
 import falcon
@@ -24,7 +25,8 @@ class EmailService():
         history_event = HistoryModel()
         try:
             data = json.loads(req.bounded_stream.read())
-            history_event.request = data
+            print(f"req: { data }")
+            history_event.request = deepcopy(data)
 
             history_event.email_content = self.send_email(data, resp)
             history_event.result = resp.text
@@ -113,7 +115,9 @@ def generate_template_content(template_params):
         )
         # provide custom filters to the template
         env.filters = {
-            'utcToPacific': utc_to_pacific
+            'utcToPacific': utc_to_pacific,
+            'multiSelectToList': multiselect_dict_to_list,
+            'uploadsToList': uploads_to_list
         }
         template = env.get_template('template')
         html_content = template.render(template_params['replacements'])
@@ -136,3 +140,15 @@ def utc_to_pacific(utc_string):
     utc_datetime = parse(utc_string)
     pacific_tz = tz.gettz("America/Los_Angeles")
     return utc_datetime.astimezone(pacific_tz).strftime("%b %-d, %Y %-I:%M:%S %p")
+
+def multiselect_dict_to_list(dict_multiselect):
+    """ return list of keys in a dictionary who's values are True """
+    keys_list = []
+    for key, val in dict_multiselect.items():
+        if val:
+            keys_list.append(key)
+    return keys_list
+
+def uploads_to_list(uploads_list):
+    """ return list of upload url """
+    return [upload.get("url") for upload in uploads_list]

@@ -55,3 +55,39 @@ EMAIL_HTML = "<h1>Knights that say {{ what_knights_say }}!</h1>"
 
 UTC_DATETIME_STRING = "2021-09-30T20:56:58.000Z"
 PACIFIC_DATETIME_STRING = "Sep 30, 2021 1:56:58 PM"
+
+TEAM_MEMBERS = {
+    "": False,
+    "agent": True,
+    "engineer": False,
+    "architect": False,
+    "contractor": False,
+    "authorized agent": False,
+    "AUTHORIZED AGENT-OTHERS": False,
+    "agentWithPowerOfAttorney": False
+}
+
+UPLOADS = [
+    {
+        "acl": "private",
+        "key": "formio-live/fake_file-3a3144b5-1050-4ceb-8bdc.pdf",
+        "url": "https://foo.s3.amazonaws.com/fake_file-3a3144b5-1050-4ceb-8bdc.pdf",
+        "name": "fake_file-3a3144b5-1050-4ceb-8bdc.pdf",
+        "size": 13264,
+        "type": "application/pdf",
+        "bucket": "bucket",
+        "storage": "s3",
+        "originalName": "fake_file.pdf"
+    },
+    {
+        "acl": "private",
+        "key": "formio-live/fake_file-3a3144b5-1050-4ceb-8bdc2.pdf",
+        "url": "https://foo.s3.amazonaws.com/fake_file-3a3144b5-1050-4ceb-8bdc2.pdf",
+        "name": "fake_file-3a3144b5-1050-4ceb-8bdc2.pdf",
+        "size": 13264,
+        "type": "application/pdf",
+        "bucket": "bucket",
+        "storage": "s3",
+        "originalName": "fake_file2.pdf"
+    }
+]
