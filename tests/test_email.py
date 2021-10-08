@@ -2,7 +2,7 @@
 from unittest.mock import patch
 import pytest
 from tests import mocks
-from service.resources.email import generate_template_content, utc_to_pacific
+from service.resources.email import generate_template_content, utc_to_pacific, multiselect_dict_to_list, uploads_to_list
 
 @patch('urllib.request.urlopen')
 def test_generate_template_content(mock_urlopen):
@@ -31,3 +31,13 @@ def test_utc_to_pacific():
     """ test conversion of utc datetime string to pacific """
     date_string = utc_to_pacific(mocks.UTC_DATETIME_STRING)
     assert date_string == mocks.PACIFIC_DATETIME_STRING
+
+def test_multiselect_dict_to_list():
+    """ test conversion of multiselect to list """
+    team = multiselect_dict_to_list(mocks.TEAM_MEMBERS)
+    assert team == ["agent"]
+
+def test_uploads_to_list():
+    """ test conversion of formio uploads to list """
+    uploads_list = uploads_to_list(mocks.UPLOADS)
+    assert uploads_list == ["https://foo.s3.amazonaws.com/fake_file-3a3144b5-1050-4ceb-8bdc.pdf", "https://foo.s3.amazonaws.com/fake_file-3a3144b5-1050-4ceb-8bdc2.pdf"]
