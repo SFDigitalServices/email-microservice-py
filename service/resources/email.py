@@ -10,11 +10,14 @@ from dateutil import tz
 import falcon
 import sendgrid
 from sendgrid.helpers.mail import (Mail, From, Subject, Asm, GroupId, GroupsToDisplay)
-from jinja2 import DictLoader, Environment, select_autoescape
+from jinja2 import Template
+from jinja2.filters import FILTERS, environmentfilter
 from bs4 import BeautifulSoup
 from service.resources.db import HistoryModel
 from .helpers.helpers import HelperService
 from .hooks import validate_access
+
+# pylint: disable=unused-argument
 
 @falcon.before(validate_access)
 class EmailService():
@@ -105,21 +108,7 @@ def generate_template_content(template_params):
         template_content = conn.read()
         if not isinstance(template_content, str):
             template_content = template_content.decode("utf-8")
-
-        loader = DictLoader({
-            'template': template_content
-        })
-        env = Environment(
-            loader=loader,
-            autoescape=select_autoescape()
-        )
-        # provide custom filters to the template
-        env.filters = {
-            'utcToPacific': utc_to_pacific,
-            'multiSelectToList': multiselect_dict_to_list,
-            'uploadsToList': uploads_to_list
-        }
-        template = env.get_template('template')
+        template = Template(template_content)
         html_content = template.render(template_params['replacements'])
 
         result.append({
@@ -135,13 +124,15 @@ def generate_template_content(template_params):
 
     return result
 
-def utc_to_pacific(utc_string):
+@environmentfilter
+def utc_to_pacific(environment, utc_string):
     """ convert utc string to America/Los_Angeles timezone string """
     utc_datetime = parse(utc_string)
     pacific_tz = tz.gettz("America/Los_Angeles")
     return utc_datetime.astimezone(pacific_tz).strftime("%b %-d, %Y %-I:%M:%S %p")
 
-def multiselect_dict_to_list(dict_multiselect):
+@environmentfilter
+def multiselect_dict_to_list(environment, dict_multiselect):
     """ return list of keys in a dictionary who's values are True """
     keys_list = []
     for key, val in dict_multiselect.items():
@@ -149,6 +140,11 @@ def multiselect_dict_to_list(dict_multiselect):
             keys_list.append(key)
     return keys_list
 
-def uploads_to_list(uploads_list):
+@environmentfilter
+def uploads_to_list(environment, uploads_list):
     """ return list of upload url """
     return [upload.get("url") for upload in uploads_list]
+
+FILTERS['utcToPacific'] = utc_to_pacific
+FILTERS['multiSelectToList'] = multiselect_dict_to_list
+FILTERS['uploadsToList'] = uploads_to_list
