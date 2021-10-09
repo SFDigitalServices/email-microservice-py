@@ -27,6 +27,19 @@ def test_generate_template_content(mock_urlopen):
     assert results[1]['type'] == 'text/plain'
     assert results[1]['value'] == 'Knights that say ni!'
 
+    # make sure builtin replace filter is working
+    mock_urlopen.return_value.__enter__.return_value.read.return_value = str.encode("{{ str_val | replace('hi', 'hello') }} world!")
+    results = generate_template_content({
+        'url': 'https://some.place.net',
+        'replacements': {
+            'str_val': 'hi'
+        }
+    })
+    assert results[0]['type'] == 'text/html'
+    assert results[0]['value'] == 'hello world!'
+    assert results[1]['type'] == 'text/plain'
+    assert results[1]['value'] == 'hello world!'
+
 def test_utc_to_pacific():
     """ test conversion of utc datetime string to pacific """
     date_string = utc_to_pacific(None, mocks.UTC_DATETIME_STRING)
