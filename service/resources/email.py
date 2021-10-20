@@ -1,150 +1,59 @@
 """ Email """
-import os
 import json
 import traceback
-import urllib.request
-import mimetypes
 from copy import deepcopy
-from dateutil.parser import parse
-from dateutil import tz
 import falcon
-import sendgrid
-from sendgrid.helpers.mail import (Mail, From, Subject, Asm, GroupId, GroupsToDisplay)
-from jinja2 import Template
-from jinja2.filters import FILTERS, environmentfilter
-from bs4 import BeautifulSoup
 from service.resources.db import HistoryModel
-from .helpers.helpers import HelperService
+from tasks import send_email
 from .hooks import validate_access
 
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument,no-member
+
+REQUIRED_PARAMS = ['from', 'to', 'subject']
 
 @falcon.before(validate_access)
 class EmailService():
     """ Email service """
     def on_post(self, req, resp):
         """ Implement POST """
-        # pylint: disable=broad-except,no-member
-        history_event = HistoryModel()
-        try:
-            data = json.loads(req.bounded_stream.read())
-            print(f"req: { data }")
-            history_event.request = deepcopy(data)
+        # pylint: disable=broad-except
+        data = json.loads(req.bounded_stream.read())
+        print(f"req: { data }")
 
-            history_event.email_content = self.send_email(data, resp)
-            history_event.result = resp.text
-        except Exception as error:
-            print(f"EmailService exception: {error}")
-            print(traceback.format_exc())
-            resp.status = falcon.HTTP_500   # pylint: disable=no-member
-            resp.text = json.dumps(str(error))
-
-            history_event.result = resp.text
-        finally:
+        if self.validate(data, resp):
+            history_event = HistoryModel()
             self.session.add(history_event)
-            self.session.commit()
+            try:
+
+                history_event.request = deepcopy(data)
+                self.session.commit()
+
+                send_email.apply_async(
+                    args=(history_event.id,),
+                    serializer='pickle')
+
+                resp.status = falcon.HTTP_200
+                resp.text = 'success'
+            except Exception as error:
+                print(f"EmailService.on_post exception: {error}")
+                print(traceback.format_exc())
+                resp.status = falcon.HTTP_500   # pylint: disable=no-member
+                resp.text = json.dumps(str(error))
+
+                history_event.result = resp.text
+                self.session.commit()
 
     @staticmethod
-    def send_email(data, resp):
-        """ Sends the email """
-        #Construct required outgoing email parameters """
-        message = Mail()
+    def validate(data, resp):
+        """ validates the incoming request """
+        missing_params = []
+        for param in REQUIRED_PARAMS:
+            if param not in data:
+                missing_params.append(param)
 
-        #One line settings """
-        message.from_email = From(data['from']['email'], data['from']['name'])
-        message.subject = Subject(data['subject'])
+        if len(missing_params) == 0:
+            return True
 
-        if 'asm' in data.keys() and data['asm'] is not None and data['asm']['group_id'] != '':
-            message.asm = Asm(GroupId(data['asm']['group_id']),
-                GroupsToDisplay(data['asm']['groups_to_display']))
-
-        func_switcher = {
-            "to": HelperService.get_emails,
-            "cc": HelperService.get_emails,
-            "bcc": HelperService.get_emails,
-            "content": HelperService.get_content,
-            "attachments": HelperService.get_attachments,
-            "custom_args": HelperService.get_custom_args
-        }
-
-        message.to = func_switcher.get("to")(data['to'], 'to')
-        data_keys = data.keys()
-        if 'cc' in data_keys:
-            message.cc = func_switcher.get("cc")(data['cc'], 'cc')
-        if 'bcc' in data_keys:
-            message.bcc = func_switcher.get("bcc")(data['bcc'], 'bcc')
-        if 'template' in data_keys and not 'content' in data_keys:
-            data['content'] = generate_template_content(data['template'])
-            data_keys = data.keys()
-        if 'content' in data_keys:
-            message.content = func_switcher.get("content")(data['content'])
-        if 'attachments' in data_keys:
-            message.attachment = func_switcher.get("attachments")(data['attachments'])
-        if 'custom_args' in data_keys:
-            message.custom_arg = func_switcher.get("custom_args")(data['custom_args'])
-
-        #logging.warning(message.get())
-        sendgrid_client = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
-        response = sendgrid_client.send(message)
-
-        print(f"response: {response.body}")
-        print(f"status: {response.status_code}")
-        resp.text = response.body
-        resp.status = falcon.HTTP_200   # pylint: disable=no-member
-
-        return [c.get() for c in message.contents]
-
-def generate_template_content(template_params):
-    """ generate array of html/plain text content from template """
-    result = []
-
-    # url and replacements are required
-    if 'url' not in template_params:
-        raise KeyError('url value is required for email template')
-    if 'replacements' not in template_params:
-        raise KeyError('replacement values are required for email template')
-
-    with urllib.request.urlopen(template_params['url']) as conn:
-        template_content = conn.read()
-        if not isinstance(template_content, str):
-            template_content = template_content.decode("utf-8")
-        template = Template(template_content)
-        html_content = template.render(template_params['replacements'])
-
-        result.append({
-            "type": mimetypes.types_map['.html'],
-            "value": html_content
-        })
-
-        soup = BeautifulSoup(html_content, features="html.parser")
-        result.append({
-            "type": mimetypes.types_map['.txt'],
-            "value": soup.get_text()
-        })
-
-    return result
-
-@environmentfilter
-def utc_to_pacific(environment, utc_string):
-    """ convert utc string to America/Los_Angeles timezone string """
-    utc_datetime = parse(utc_string)
-    pacific_tz = tz.gettz("America/Los_Angeles")
-    return utc_datetime.astimezone(pacific_tz).strftime("%b %-d, %Y %-I:%M:%S %p")
-
-@environmentfilter
-def multiselect_dict_to_list(environment, dict_multiselect):
-    """ return list of keys in a dictionary who's values are True """
-    keys_list = []
-    for key, val in dict_multiselect.items():
-        if val:
-            keys_list.append(key)
-    return keys_list
-
-@environmentfilter
-def uploads_to_list(environment, uploads_list):
-    """ return list of upload url """
-    return [upload.get("url") for upload in uploads_list]
-
-FILTERS['utcToPacific'] = utc_to_pacific
-FILTERS['multiSelectToList'] = multiselect_dict_to_list
-FILTERS['uploadsToList'] = uploads_to_list
+        resp.text = f"Missing required parameters: {missing_params}"
+        resp.status = falcon.HTTP_400
+        return False

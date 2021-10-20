@@ -24,6 +24,8 @@ psycopg2 = "*"
 alembic = "*"
 bs4 = "*"
 python-dateutil = "*"
+celery = "*"
+redis = "*"
 
 [requires]
 python_version = "3.7"
