@@ -21,6 +21,15 @@ If the command is successful, you will receive an email in your inbox; otherwise
 
 For detail of the fields in the json data, please see below.
 
+## Run the server
+```
+ACCESS_KEY=123456 pipenv run gunicorn --reload 'service.microservice:start_service()' --timeout 600
+```
+Start celery worker
+```
+pipenv run celery worker
+```
+
 ## Field properties
 | Property&nbsp;name   | Description                                                                           |  | | Required|
 |----------|---------------------------------------------------------------------------------------|-----------------------| ------ | -----|
