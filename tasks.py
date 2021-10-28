@@ -9,6 +9,7 @@ from dateutil.parser import parse
 from dateutil import tz
 from kombu import serialization
 import celery
+from python_http_client.exceptions import HTTPError
 import sendgrid
 from sendgrid.helpers.mail import (Mail, From, Subject, Asm, GroupId, GroupsToDisplay)
 from jinja2 import Template
@@ -101,6 +102,8 @@ def send_email(self, record_id):
         record.result = response.body
         record.processed_timestamp = datetime.datetime.now(LOCAL_TZ)
         db_session.commit()
+    except HTTPError as err:
+        print(f"send_grid error: {err.to_dict}")
     except Exception as err: # pylint: disable=broad-except
         print(f"task Error: {err}")
         print(traceback.format_exc())
