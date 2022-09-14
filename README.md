@@ -95,3 +95,6 @@ Run DB migrations
 ```
 pipenv run alembic upgrade head
 ```
+
+## Templating
+Templates are rendered with [Jinja](https://jinja.palletsprojects.com/en/3.1.x/templates/).
