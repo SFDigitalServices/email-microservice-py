@@ -3,6 +3,7 @@
 import os
 import datetime
 import traceback
+import urllib.parse
 import urllib.request
 import mimetypes
 from dateutil.parser import parse
@@ -12,8 +13,9 @@ import celery
 from python_http_client.exceptions import HTTPError
 import sendgrid
 from sendgrid.helpers.mail import (Mail, From, Subject, Asm, GroupId, GroupsToDisplay)
-from jinja2 import Template
+from jinja2 import Environment, BaseLoader
 from jinja2.filters import FILTERS, pass_environment
+from jinja2.exceptions import TemplateNotFound
 from bs4 import BeautifulSoup
 import celeryconfig
 from service.resources.helpers.helpers import HelperService
@@ -125,6 +127,25 @@ def rollback(db_session, record):
         record.result = ERR_MSG_MAX_RETRIES
         db_session.commit()
 
+class UrlLoader(BaseLoader):
+    """ Load remote Jinja templates via url """
+    def __init__(self, path):
+        """ init """
+        self.path = path
+
+    def get_source(self, environment, template):
+        """ override get_source implementation """
+        url = urllib.parse.urljoin(self.path, template)
+        print(f"url: {url}")
+        try:
+            with urllib.request.urlopen(url) as conn:
+                template_content = conn.read()
+                if not isinstance(template_content, str):
+                    template_content = template_content.decode("utf-8")
+                return template_content, None, True
+        except Exception as err:
+            raise TemplateNotFound(template) from err
+
 def generate_template_content(template_params):
     """ generate array of html/plain text content from template """
     result = []
@@ -135,23 +156,23 @@ def generate_template_content(template_params):
     if 'replacements' not in template_params:
         raise KeyError('replacement values are required for email template')
 
-    with urllib.request.urlopen(template_params['url']) as conn:
-        template_content = conn.read()
-        if not isinstance(template_content, str):
-            template_content = template_content.decode("utf-8")
-        template = Template(template_content)
-        html_content = template.render(template_params['replacements'])
+    index = template_params['url'].rfind('/')
+    path = template_params['url'][:index+1]
+    filename = template_params['url'][index+1:]
+    template_env = Environment(loader=UrlLoader(path))
+    template = template_env.get_template(filename)
+    html_content = template.render(template_params['replacements'])
 
-        result.append({
-            "type": mimetypes.types_map['.html'],
-            "value": html_content
-        })
+    result.append({
+        "type": mimetypes.types_map['.html'],
+        "value": html_content
+    })
 
-        soup = BeautifulSoup(html_content, features="html.parser")
-        result.append({
-            "type": mimetypes.types_map['.txt'],
-            "value": soup.get_text()
-        })
+    soup = BeautifulSoup(html_content, features="html.parser")
+    result.append({
+        "type": mimetypes.types_map['.txt'],
+        "value": soup.get_text()
+    })
 
     return result
 
