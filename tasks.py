@@ -136,7 +136,7 @@ class UrlLoader(BaseLoader):
     def get_source(self, environment, template):
         """ override get_source implementation """
         url = urllib.parse.urljoin(self.path, template)
-        print(f"url: {url}")
+        print(f"get_source url: {url}")
         try:
             with urllib.request.urlopen(url) as conn:
                 template_content = conn.read()
