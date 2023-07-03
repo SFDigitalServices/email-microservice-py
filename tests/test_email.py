@@ -135,10 +135,10 @@ def test_send_email_task_sendgrid_error(mock_sendgrid_client, mock_urlopen, db_s
     db_session.delete(history)
     db_session.commit()
 
-@pytest.mark.parametrize('input', [[{}], [{'name': 'Name'}], [{'email': 'Email'}]])
+@pytest.mark.parametrize('test_input', [[{}], [{'name': 'Name'}], [{'email': 'Email'}]])
 @patch('urllib.request.urlopen')
 @patch('sendgrid.SendGridAPIClient')
-def test_send_email_task_invalid_email_obj(mock_sendgrid_client, mock_urlopen, input, db_session):
+def test_send_email_task_invalid_email_obj(mock_sendgrid_client, mock_urlopen, test_input, db_session):
     """ test send_email """
     mock_sendgrid_client.return_value.send.return_value.body = "sendgrid response goes here"
     mock_sendgrid_client.return_value.send.return_value.status = 200
@@ -147,7 +147,7 @@ def test_send_email_task_invalid_email_obj(mock_sendgrid_client, mock_urlopen, i
     params = mocks.EMAIL_POST.copy()
     del params['content']
     params['template'] = mocks.TEMPLATE_PARAMS
-    params['cc'] = input
+    params['cc'] = test_input
 
     history = HistoryModel(request=params)
     db_session.add(history)
