@@ -50,6 +50,11 @@ class HelperService():
         email_list = []
         counter = 0
         for email in emails:
+            if email_type != 'to' and \
+               'email' not in email or 'name' not in email:
+                print(f'Missing "email" or "name" for email of type "{email_type}" - skipping: {email}')
+                continue
+
             if email_type == 'to':
                 email_list.append(To(email['email'], email['name'], p=counter))
             elif email_type == 'cc':
