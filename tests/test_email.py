@@ -135,33 +135,6 @@ def test_send_email_task_sendgrid_error(mock_sendgrid_client, mock_urlopen, db_s
     db_session.delete(history)
     db_session.commit()
 
-@pytest.mark.parametrize('test_input', [[{}], [{'name': 'Name'}], [{'email': 'Email'}]])
-@patch('urllib.request.urlopen')
-@patch('sendgrid.SendGridAPIClient')
-def test_send_email_task_invalid_email_obj(mock_sendgrid_client, mock_urlopen, test_input, db_session):
-    """ test send_email """
-    mock_sendgrid_client.return_value.send.return_value.body = "sendgrid response goes here"
-    mock_sendgrid_client.return_value.send.return_value.status = 200
-    mock_urlopen.return_value.__enter__.return_value.read.side_effect = [mocks.EMAIL_HTML, b"fake_data", b"fake_data"]
-
-    params = mocks.EMAIL_POST.copy()
-    del params['content']
-    params['template'] = mocks.TEMPLATE_PARAMS
-    params['cc'] = test_input
-
-    history = HistoryModel(request=params)
-    db_session.add(history)
-    db_session.commit()
-
-    send_email.s(history.id).apply()
-
-    db_session.refresh(history)
-    assert history.result == "sendgrid response goes here"
-    assert len(history.email_content) == 2
-    assert history.processed_timestamp is not None
-
-    db_session.delete(history)
-
 def raise_http_error(arg):
     """ raise HTTPError """
     print("raise HTTPError")
