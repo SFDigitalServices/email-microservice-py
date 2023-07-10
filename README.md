@@ -4,15 +4,88 @@ SFDS Email microservice is a service intended for developers inside the city to 
 
 ## Get started
 
+### First Time Setup
+
+#### Databases
+
+Install Postgres (if needed)
+
+```bash
+brew install postgresql
+```
+
+Create database
+
+```bash
+createdb email_microservice
+```
+
+Install Redis (if needed)
+
+```bash
+brew install redis
+```
+
+Create a local config (by copying)
+
+```bash
+cp .env.example .env
+```
+
+Edit the following line
+
+```bash
+export REDIS_URL=redis://localhost:6379
+```
+
+Start the databases
+
+```bash
+brew services start postgresql@14
+brew services start redis
+```
+
+If you want to verify the services running, you can use
+
+```bash
+brew services list
+```
+
+#### Environment and Dependencies
+Install Pipenv (if needed)
+
+```bash
+pip install --user pipenv
+```
+
+Install packages
+
+```bash
+pipenv install --dev
+```
+
+Note: if you have (mini)Conda installed, you might have to adjust the Python
+executable. If so, you can run something like this ([see for more info](https://stackoverflow.com/questions/50546339/pipenv-with-conda)):
+
+```bash
+pipenv --python=$(conda run which python) --site-packages
+```
+
+Migrate DB
+
+```bash
+pipenv run alembic upgrade head
+```
+
 ### Run the server
 
-```
+```bash
 ACCESS_KEY=123456 pipenv run gunicorn --reload 'service.microservice:start_service()' --timeout 600
 ```
 
 Start celery worker
 
-```
+```bash
 pipenv run celery worker
 ```
 
@@ -20,7 +93,14 @@ pipenv run celery worker
 
 ### send an email with template
 
-```
+Note: When sending an example request, you'll need the following headers:
+
+* `ACCESS_KEY`: The same as the one you passed as an env variable. In the above
+example, it would be `123456`
+* `Content-Type`: `application/json`
+
+
+```json
 post /email
 {
     "subject": "Hi Diddly Ho",
@@ -31,13 +111,14 @@ post /email
     "from": {
         "email": "ned@flandersfamily.com",
         "name": "Ned Flanders"
-    "template": {
-        "url": "https://static.file.com/template.html",
-        "replacements" {
-            "var1": "hello!",
-            "var2": {
-                "first_name": "homer",
-                "last_name": "simpson"
+        "template": {
+            "url": "https://static.file.com/template.html",
+            "replacements" {
+                "var1": "hello!",
+                "var2": {
+                    "first_name": "homer",
+                    "last_name": "simpson"
+                }
             }
         }
     }
@@ -46,7 +127,7 @@ post /email
 
 ### send an email with 2 different methods of file attachments
 
-```
+```json
 post /email
 {
     "subject": "Status Report",
@@ -80,7 +161,7 @@ post /email
 
 Code coverage command with missing statement line numbers
 
-```
+```bash
 pipenv run python -m pytest -s --cov=service --cov=tasks tests/ --cov-report term-missing
 ```
 
@@ -88,7 +169,7 @@ pipenv run python -m pytest -s --cov=service --cov=tasks tests/ --cov-report ter
 
 Create a migration
 
-```
+```bash
 pipenv run alembic revision -m "Add a column"
 ```
 
@@ -97,7 +178,7 @@ the changes you want to make.
 
 Run DB migrations
 
-```
+```bash
 pipenv run alembic upgrade head
 ```
 
