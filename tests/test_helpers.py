@@ -5,7 +5,6 @@ Testing for the misc helper functions
 import pytest
 from tasks import generate_message
 from tests import mocks
-from sendgrid.helpers.mail import To, Cc, Bcc
 
 def test_personalization_multiple_emails():
     """test_personalization_multiple_emails"""
