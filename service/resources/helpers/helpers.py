@@ -4,7 +4,6 @@ Set of helper functions to handler sendgrid email api options
 import base64
 import urllib.request
 from sendgrid.helpers.mail import (
-    To, Cc, Bcc,
     CustomArg, Content, Attachment, FileName,
     FileContent, FileType)
 
@@ -43,21 +42,6 @@ class HelperService():
         for custom_arg_key, custom_arg_value in custom_args.items():
             custom_arg_list.append(CustomArg(custom_arg_key, custom_arg_value))
         return custom_arg_list
-
-    @staticmethod
-    def get_emails(emails, email_type):
-        """ This function sets up email type """
-        email_list = []
-        counter = 0
-        for email in emails:
-            if email_type == 'to':
-                email_list.append(To(email['email'], email['name'], p=counter))
-            elif email_type == 'cc':
-                email_list.append(Cc(email['email'], email['name'], p=counter))
-            elif email_type == 'bcc':
-                email_list.append(Bcc(email['email'], email['name'], p=counter))
-            counter += 1
-        return email_list
 
     @staticmethod
     def get_content(contents):

@@ -91,3 +91,51 @@ UPLOADS = [
         "originalName": "fake_file2.pdf"
     }
 ]
+
+EMAIL_MULTIPLE = {
+    "subject": "unit test",
+    "to": [
+        {
+        "email": "recipient1@sf.gov",
+        "name": "recipient1"
+        },
+        {
+        "email": "recipient2@sf.gov",
+        "name": "recipient2"
+        }
+    ],
+    "from": {
+        "email": "sender@sf.gov",
+        "name": "sender"
+    },
+    "content": [{
+        "type": "text/plain",
+        "value": "Hello world!"
+    }],
+    "cc": [
+        {
+        "email": "cc-recipient1@sf.gov",
+        "name": "cc-recipient1"
+        },
+        {
+        "email": "cc-recipient2@sf.gov",
+        "name": "cc-recipient2"
+        },
+        {
+        "email": "cc-recipient3@sf.gov",
+        "name": "cc-recipient3"
+        },
+        {
+        "email": "cc-recipient4@sf.gov",
+        "name": "cc-recipient4"
+        },
+        {
+        "email": "cc-recipient5@sf.gov",
+        "name": "cc-recipient5"
+        }
+    ],
+    "bcc": [{
+        "email": "bcc-recipient@sf.gov",
+        "name": "bcc-recipient"
+    }]
+}

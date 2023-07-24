@@ -9,9 +9,9 @@ from dateutil.parser import parse
 from dateutil import tz
 import falcon
 import sendgrid
-from sendgrid.helpers.mail import (Mail, From, Subject, Asm, GroupId, GroupsToDisplay)
+from sendgrid.helpers.mail import (Mail, From, Subject, Asm, GroupId, GroupsToDisplay, Personalization, To, Cc, Bcc)
 from jinja2 import Template
-from jinja2.filters import FILTERS, environmentfilter
+from jinja2.filters import FILTERS, pass_environment
 from bs4 import BeautifulSoup
 from service.resources.db import HistoryModel
 from .helpers.helpers import HelperService
@@ -47,41 +47,8 @@ class EmailService():
     @staticmethod
     def send_email(data, resp):
         """ Sends the email """
-        #Construct required outgoing email parameters """
-        message = Mail()
 
-        #One line settings """
-        message.from_email = From(data['from']['email'], data['from']['name'])
-        message.subject = Subject(data['subject'])
-
-        if 'asm' in data.keys() and data['asm'] is not None and data['asm']['group_id'] != '':
-            message.asm = Asm(GroupId(data['asm']['group_id']),
-                GroupsToDisplay(data['asm']['groups_to_display']))
-
-        func_switcher = {
-            "to": HelperService.get_emails,
-            "cc": HelperService.get_emails,
-            "bcc": HelperService.get_emails,
-            "content": HelperService.get_content,
-            "attachments": HelperService.get_attachments,
-            "custom_args": HelperService.get_custom_args
-        }
-
-        message.to = func_switcher.get("to")(data['to'], 'to')
-        data_keys = data.keys()
-        if 'cc' in data_keys:
-            message.cc = func_switcher.get("cc")(data['cc'], 'cc')
-        if 'bcc' in data_keys:
-            message.bcc = func_switcher.get("bcc")(data['bcc'], 'bcc')
-        if 'template' in data_keys and not 'content' in data_keys:
-            data['content'] = generate_template_content(data['template'])
-            data_keys = data.keys()
-        if 'content' in data_keys:
-            message.content = func_switcher.get("content")(data['content'])
-        if 'attachments' in data_keys:
-            message.attachment = func_switcher.get("attachments")(data['attachments'])
-        if 'custom_args' in data_keys:
-            message.custom_arg = func_switcher.get("custom_args")(data['custom_args'])
+        message = generate_message(data)
 
         #logging.warning(message.get())
         sendgrid_client = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
@@ -93,6 +60,49 @@ class EmailService():
         resp.status = falcon.HTTP_200   # pylint: disable=no-member
 
         return [c.get() for c in message.contents]
+
+def generate_message(data):
+    """Construct required outgoing email parameters"""
+    message = Mail()
+
+    #One line settings """
+    message.from_email = From(data['from']['email'], data['from']['name'])
+    message.subject = Subject(data['subject'])
+
+    if 'asm' in data.keys() and data['asm'] is not None and data['asm']['group_id'] != '':
+        message.asm = Asm(GroupId(data['asm']['group_id']),
+            GroupsToDisplay(data['asm']['groups_to_display']))
+
+    func_switcher = {
+        "content": HelperService.get_content,
+        "attachments": HelperService.get_attachments,
+        "custom_args": HelperService.get_custom_args
+    }
+
+    personalization = Personalization()
+
+    for idx, email in enumerate(data['to']):
+        personalization.add_to(To(email.get('email'), email.get('name', None), p=idx))
+
+    data_keys = data.keys()
+    if 'cc' in data_keys:
+        for idx, email in enumerate(data['cc']):
+            personalization.add_cc(Cc(email.get('email'), email.get('name', None), p=idx))
+    if 'bcc' in data_keys:
+        for idx, email in enumerate(data['bcc']):
+            personalization.add_bcc(Bcc(email.get('email'), email.get('name', None), p=idx))
+    if 'template' in data_keys and not 'content' in data_keys:
+        data['content'] = generate_template_content(data['template'])
+        data_keys = data.keys()
+    if 'content' in data_keys:
+        message.content = func_switcher.get("content")(data['content'])
+    if 'attachments' in data_keys:
+        message.attachment = func_switcher.get("attachments")(data['attachments'])
+    if 'custom_args' in data_keys:
+        message.custom_arg = func_switcher.get("custom_args")(data['custom_args'])
+
+    message.add_personalization(personalization)
+    return message
 
 def generate_template_content(template_params):
     """ generate array of html/plain text content from template """
@@ -124,14 +134,14 @@ def generate_template_content(template_params):
 
     return result
 
-@environmentfilter
+@pass_environment
 def utc_to_pacific(environment, utc_string):
     """ convert utc string to America/Los_Angeles timezone string """
     utc_datetime = parse(utc_string)
     pacific_tz = tz.gettz("America/Los_Angeles")
     return utc_datetime.astimezone(pacific_tz).strftime("%b %-d, %Y %-I:%M:%S %p")
 
-@environmentfilter
+@pass_environment
 def multiselect_dict_to_list(environment, dict_multiselect):
     """ return list of keys in a dictionary who's values are True """
     keys_list = []
@@ -140,7 +150,7 @@ def multiselect_dict_to_list(environment, dict_multiselect):
             keys_list.append(key)
     return keys_list
 
-@environmentfilter
+@pass_environment
 def uploads_to_list(environment, uploads_list):
     """ return list of upload url """
     return [upload.get("url") for upload in uploads_list]
