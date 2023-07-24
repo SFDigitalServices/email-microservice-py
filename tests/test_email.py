@@ -1,9 +1,13 @@
 """ Tests for email module """
 from unittest.mock import patch
 import pytest
+from python_http_client.exceptions import HTTPError
+from service.resources.db import HistoryModel
 from tests import mocks
-from service.resources.email import generate_template_content, utc_to_pacific, multiselect_dict_to_list, uploads_to_list
+from tests.fixtures import db_session # pylint: disable=unused-import
+from tasks import generate_template_content, utc_to_pacific, multiselect_dict_to_list, uploads_to_list, send_email, ERR_MSG_MAX_RETRIES
 
+# pylint: disable=redefined-outer-name,unused-argument
 @patch('urllib.request.urlopen')
 def test_generate_template_content(mock_urlopen):
     """ test generate_template_content function """
@@ -54,3 +58,89 @@ def test_uploads_to_list():
     """ test conversion of formio uploads to list """
     uploads_list = uploads_to_list(None, mocks.UPLOADS)
     assert uploads_list == ["https://foo.s3.amazonaws.com/fake_file-3a3144b5-1050-4ceb-8bdc.pdf", "https://foo.s3.amazonaws.com/fake_file-3a3144b5-1050-4ceb-8bdc2.pdf"]
+
+@patch('urllib.request.urlopen')
+@patch('sendgrid.SendGridAPIClient')
+def test_send_email_task(mock_sendgrid_client, mock_urlopen, db_session):
+    """ test send_email """
+    mock_sendgrid_client.return_value.send.return_value.body = "sendgrid response goes here"
+    mock_sendgrid_client.return_value.send.return_value.status = 200
+    mock_urlopen.return_value.__enter__.return_value.read.side_effect = [mocks.EMAIL_HTML, b"fake_data", b"fake_data"]
+
+    params = mocks.EMAIL_POST.copy()
+    del params['content']
+    params['template'] = mocks.TEMPLATE_PARAMS
+
+    history = HistoryModel(request=params)
+    db_session.add(history)
+    db_session.commit()
+
+    send_email.s(history.id).apply()
+
+    db_session.refresh(history)
+    assert history.result == "sendgrid response goes here"
+    assert len(history.email_content) == 2
+    assert history.processed_timestamp is not None
+
+    db_session.delete(history)
+
+@patch('urllib.request.urlopen')
+@patch('sendgrid.SendGridAPIClient')
+def test_send_email_task_generic_error(mock_sendgrid_client, mock_urlopen, db_session):
+    """ test generic error when calling sendgrid_client.send() """
+    mock_sendgrid_client.return_value.send.side_effect = Exception("generic send error")
+    mock_urlopen.return_value.__enter__.return_value.read.side_effect = [mocks.EMAIL_HTML, b"fake_data", b"fake_data"]
+
+    params = mocks.EMAIL_POST.copy()
+    del params['content']
+    params['template'] = mocks.TEMPLATE_PARAMS
+
+    history = HistoryModel(request=params)
+    db_session.add(history)
+    db_session.commit()
+
+    send_email.s(history.id).apply()
+
+    db_session.refresh(history)
+    assert history.result == ERR_MSG_MAX_RETRIES
+    assert history.email_content is None
+    assert history.processed_timestamp is None
+
+    db_session.delete(history)
+    db_session.commit()
+
+@patch('urllib.request.urlopen')
+@patch('sendgrid.SendGridAPIClient')
+def test_send_email_task_sendgrid_error(mock_sendgrid_client, mock_urlopen, db_session):
+    """ test sendgrid error when calling sendgrid_client.send() """
+    print("test_send_email_task_sendgrid_error")
+    mock_sendgrid_client.return_value.send.side_effect = raise_http_error
+    mock_urlopen.return_value.__enter__.return_value.read.side_effect = [mocks.EMAIL_HTML, b"fake_data", b"fake_data"]
+
+    params = mocks.EMAIL_POST.copy()
+    del params['content']
+    params['template'] = mocks.TEMPLATE_PARAMS
+
+    history = HistoryModel(request=params)
+    db_session.add(history)
+    db_session.commit()
+
+    send_email.s(history.id).apply()
+
+    db_session.refresh(history)
+    assert history.result == ERR_MSG_MAX_RETRIES
+    assert history.email_content is None
+    assert history.processed_timestamp is None
+
+    db_session.delete(history)
+    db_session.commit()
+
+def raise_http_error(arg):
+    """ raise HTTPError """
+    print("raise HTTPError")
+    raise HTTPError(
+        400,
+        'sendgrid error reason',
+        'sendgrid error body',
+        None
+    )

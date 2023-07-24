@@ -24,6 +24,9 @@ psycopg2 = "*"
 alembic = "*"
 bs4 = "*"
 python-dateutil = "*"
+celery = "*"
+redis = "*"
+importlib-metadata = "<5.0"
 
 [requires]
 python_version = "3.7"
