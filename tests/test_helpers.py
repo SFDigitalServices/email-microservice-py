@@ -1,8 +1,6 @@
 """
 Testing for the misc helper functions
 """
-
-import pytest
 from tasks import generate_message
 from tests import mocks
 

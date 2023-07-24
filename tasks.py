@@ -59,7 +59,6 @@ def send_email(self, record_id):
         data = record.request
 
         message = generate_message(data)
-        print(f"message: {message}")
 
         #logging.warning(message.get())
         sendgrid_client = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API_KEY'))
@@ -185,6 +184,7 @@ def generate_message(data):
         message.custom_arg = func_switcher.get("custom_args")(data['custom_args'])
 
     message.add_personalization(personalization)
+    print(f"message: {message}")
     return message
 
 @pass_environment

@@ -96,8 +96,7 @@ EMAIL_MULTIPLE = {
     "subject": "unit test",
     "to": [
         {
-        "email": "recipient1@sf.gov",
-        "name": "recipient1"
+        "email": "recipient1@sf.gov"
         },
         {
         "email": "recipient2@sf.gov",
@@ -126,8 +125,7 @@ EMAIL_MULTIPLE = {
         "name": "cc-recipient3"
         },
         {
-        "email": "cc-recipient4@sf.gov",
-        "name": "cc-recipient4"
+        "email": "cc-recipient4@sf.gov"
         },
         {
         "email": "cc-recipient5@sf.gov",
@@ -135,7 +133,6 @@ EMAIL_MULTIPLE = {
         }
     ],
     "bcc": [{
-        "email": "bcc-recipient@sf.gov",
-        "name": "bcc-recipient"
+        "email": "bcc-recipient@sf.gov"
     }]
 }
