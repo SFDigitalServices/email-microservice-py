@@ -1,6 +1,8 @@
-# SFDS Email Microservice [![SFDigitalServices](https://circleci.com/gh/SFDigitalServices/email-microservice-py.svg?style=svg)](https://circleci.com/gh/SFDigitalServices/email-microservice-py)
+# Email Microservice
 
-SFDS Email microservice is a service intended for developers inside the city to send emails on a standard transactional email service platform such as Sendgrid, Mailgun, Amaozon SES ... etc. Only Sendgrid is supported at this time; other email service implementation is not on the road map.
+[![SFDigitalServices](https://circleci.com/gh/SFDigitalServices/email-microservice-py.svg?style=svg)](https://circleci.com/gh/SFDigitalServices/email-microservice-py)
+
+The Email microservice is a supports automated processes within the City & County of San Francisco to send templated emails via [SendGrid]. <!-- Other email service implementations (Mailgun, Amazon SES, etc.) are not yet supported. -->
 
 ## Get started
 
@@ -91,69 +93,71 @@ pipenv run celery worker
 
 ## API
 
-### send an email with template
+All API endpoints must be called via HTTP `POST` with a JSON request body and the following headers:
 
-Note: When sending an example request, you'll need the following headers:
-
-* `ACCESS_KEY`: The same as the one you passed as an env variable. In the above
-example, it would be `123456`
+* `ACCESS_KEY`: Your API access key
 * `Content-Type`: `application/json`
 
+### Send an email with template
 
 ```json
-post /email
 {
-    "subject": "Hi Diddly Ho",
-    "to": [{
-        "email": "homer@springfield.com",
-        "name": "Homer Simpson"
-    }],
-    "from": {
-        "email": "ned@flandersfamily.com",
-        "name": "Ned Flanders"
-        "template": {
-            "url": "https://static.file.com/template.html",
-            "replacements" {
-                "var1": "hello!",
-                "var2": {
-                    "first_name": "homer",
-                    "last_name": "simpson"
-                }
-            }
+  "subject": "Hi Diddly Ho",
+  "to": [{
+    "email": "homer@springfield.com",
+    "name": "Homer Simpson"
+  }],
+  "from": {
+    "email": "ned@flandersfamily.com",
+    "name": "Ned Flanders"
+    "template": {
+      "url": "https://static.file.com/template.html",
+      "replacements" {
+        "var1": "hello!",
+        "var2": {
+          "first_name": "homer",
+          "last_name": "simpson"
         }
+      }
     }
+  }
 }
 ```
 
-### send an email with 2 different methods of file attachments
+### Attachments
+
+You can provide attachments either inline (with the base64-encoded `content` field) or via URL in the `path` field. You may also provide request `headers` for URL attachments that require additional authentication.
 
 ```json
-post /email
 {
-    "subject": "Status Report",
-    "to": [{
-        "email": "cburns@springfieldnuclear.com",
-        "name": "Charles Burns"
-    }],
-    "from": {
-        "email": "wsmithers@springfieldnuclear.com",
-        "name": "Waylon Smithers"
-    "content": {
-        "type": "text/plain",
-        "value": "All systems are in operating condition."
+  "subject": "Status Report",
+  "to": [{
+    "email": "cburns@springfieldnuclear.com",
+    "name": "Charles Burns"
+  }],
+  "from": {
+    "email": "wsmithers@springfieldnuclear.com",
+    "name": "Waylon Smithers"
+  },
+  "content": {
+    "type": "text/plain",
+    "value": "All systems are in operating condition."
+  },
+  "attachments": [
+    {
+      "content": "YmFzZTY0IHN0cmluZw==",
+      "filename": "report.txt",
+      "type": "text/plain"
     },
-    "attachments": [{
-        "content": "YmFzZTY0IHN0cmluZw==",
-        "filename": "report.txt",
-        "type": "text/plain"
-    },{
-        "filename": "report.pdf",
-        "path": "https://www.springfieldnuclear.com/report.pdf",
-        "type": "application/pdf",
-        "headers": {
-            "api-key": "123ABC"
-        }
-    }]
+    {
+      "filename": "report.pdf",
+      "path": "https://www.springfieldnuclear.com/report.pdf",
+      "type": "application/pdf",
+      "headers": {
+          "api-key": "123ABC"
+      }
+    }
+  ]
 }
 ```
 
@@ -184,4 +188,7 @@ pipenv run alembic upgrade head
 
 ## Templating
 
-Templates are rendered with [Jinja](https://jinja.palletsprojects.com/en/3.1.x/templates/).
+Templates are rendered with [Jinja].
+
+[jinja]: (https://jinja.palletsprojects.com/en/3.1.x/templates/)
+[sendgrid]: https://docs.sendgrid.com/for-developers
