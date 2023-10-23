@@ -41,6 +41,14 @@ EMAIL_POST = {
     "asm": {
         "group_id": 1,
         "groups_to_display": [1, 2]
+    },
+    "filters" : {
+        "clicktrack" : {
+            "settings" : {
+                "enable" : 0,
+                "enable_text" : False
+            }
+        }
     }
 }
 
