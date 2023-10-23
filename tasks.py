@@ -12,7 +12,7 @@ from kombu import serialization
 import celery
 from python_http_client.exceptions import HTTPError
 import sendgrid
-from sendgrid.helpers.mail import (Mail, From, To, Cc, Bcc, Personalization, Subject, Asm, GroupId, GroupsToDisplay)
+from sendgrid.helpers.mail import (Mail, From, To, Cc, Bcc, Personalization, Subject, Asm, GroupId, GroupsToDisplay, TrackingSettings, ClickTracking)
 from jinja2 import Environment, BaseLoader
 from jinja2.filters import FILTERS, pass_environment
 from jinja2.exceptions import TemplateNotFound
@@ -154,6 +154,19 @@ def generate_message(data):
     if 'asm' in data.keys() and data['asm'] is not None and data['asm']['group_id'] != '':
         message.asm = Asm(GroupId(data['asm']['group_id']),
             GroupsToDisplay(data['asm']['groups_to_display']))
+
+    # https://docs.sendgrid.com/for-developers/sending-email/smtp-filters#filter-clicktrack
+    if 'filters' in data \
+        and 'clicktrack' in data['filters'] \
+        and 'settings' in data['filters']['clicktrack']:
+
+        clicktrack_settings = data['filters']['clicktrack']['settings']
+        clicktrack_enable = bool(clicktrack_settings.get('enable', False))
+        clicktrack_enable_text = bool(clicktrack_settings.get('enable_text', False))
+
+        tracking_settings = TrackingSettings()
+        tracking_settings.click_tracking = ClickTracking(clicktrack_enable, clicktrack_enable_text)
+        message.tracking_settings = tracking_settings
 
     func_switcher = {
         "content": HelperService.get_content,
