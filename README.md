@@ -54,6 +54,7 @@ brew services list
 ```
 
 #### Environment and Dependencies
+
 Install Pipenv (if needed)
 
 ```bash
@@ -158,6 +159,38 @@ You can provide attachments either inline (with the base64-encoded `content` fie
       }
     }
   ]
+}
+```
+
+### Filter: clicktrack
+
+[docs.sendgrid.com](https://docs.sendgrid.com/for-developers/sending-email/smtp-filters#filter-clicktrack)
+
+```json
+{
+  "subject": "Hi Diddly Ho",
+  "to": [{
+    "email": "homer@springfield.com",
+    "name": "Homer Simpson"
+  }],
+  "from": {
+    "email": "ned@flandersfamily.com",
+    "name": "Ned Flanders"
+  },
+  "content": [
+    {
+      "type": "text/plain",
+      "value": "Try search with https://google.com"
+    }
+  ],
+  "filters" : {
+    "clicktrack" : {
+      "settings" : {
+        "enable" : 0,
+        "enable_text" : false
+      }
+    }
+  }
 }
 ```
 
