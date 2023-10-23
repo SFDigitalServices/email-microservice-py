@@ -161,8 +161,8 @@ def generate_message(data):
         and 'settings' in data['filters']['clicktrack']:
 
         clicktrack_settings = data['filters']['clicktrack']['settings']
-        clicktrack_enable = bool(clicktrack_settings['enable'])
-        clicktrack_enable_text = bool(clicktrack_settings['enable_text'])
+        clicktrack_enable = bool(clicktrack_settings.get('enable', False))
+        clicktrack_enable_text = bool(clicktrack_settings.get('enable_text', False))
 
         tracking_settings = TrackingSettings()
         tracking_settings.click_tracking = ClickTracking(clicktrack_enable, clicktrack_enable_text)
