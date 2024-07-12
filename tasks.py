@@ -126,7 +126,7 @@ def generate_template_content(template_params):
     index = template_params['url'].rfind('/')
     path = template_params['url'][:index+1]
     filename = template_params['url'][index+1:]
-    template_env = Environment(loader=UrlLoader(path))
+    template_env = Environment(loader=UrlLoader(path), autoescape=True)
     template = template_env.get_template(filename)
     html_content = template.render(template_params['replacements'])
 
