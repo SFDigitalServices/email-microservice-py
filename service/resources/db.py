@@ -23,5 +23,6 @@ class HistoryModel(BASE):
     request = sa.Column(postgres.JSONB, nullable=False)
     email_content = sa.Column(postgres.JSONB)
     result = sa.Column(sa.TEXT)
+    # pylint: disable-next=not-callable
     date_created = sa.Column(sa.DateTime(timezone=True), server_default=func.now())
     processed_timestamp = sa.Column(sa.DateTime(timezone=True))
