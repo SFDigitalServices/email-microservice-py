@@ -14,4 +14,4 @@ class Welcome():
         """
         msg = {'message': 'Welcome'}
         resp.text = json.dumps(jsend.success(msg))
-        resp.status = falcon.HTTP_200
+        resp.status = 200

@@ -23,7 +23,7 @@ def start_service():
 
 def default_error(_req, resp):
     """Handle default error"""
-    resp.status = falcon.HTTP_404
+    resp.status = 404
     msg_error = jsend.error('404 - Not Found')
 
     sentry_sdk.capture_message(msg_error)

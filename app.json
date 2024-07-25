@@ -1,7 +1,9 @@
 {
+    "name": "email-microservice",
+    "stack": "heroku-24",
     "addons": [
       {
-        "plan": "heroku-redis:hobby-dev"
+        "plan": "heroku-redis:mini"
       },
       {
         "plan": "papertrail:choklad"
@@ -22,9 +24,7 @@
     },
     "formation": {
     },
-    "name": "email-microservice",
     "scripts": {
       "postdeploy": "pipenv run alembic upgrade head"
-    },
-    "stack": "heroku-20"
+    }
   }
