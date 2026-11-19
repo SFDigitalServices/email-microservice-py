@@ -20,7 +20,7 @@ sendgrid = "*"
 urllib3 = ">=1.26.5"
 jinja2 = "*"
 sqlalchemy = "*"
-psycopg2 = "*"
+psycopg = "*"
 alembic = "*"
 bs4 = "*"
 python-dateutil = "*"
@@ -30,3 +30,4 @@ importlib-metadata = "<5.0"
 
 [requires]
 python_version = "3.12"
+
